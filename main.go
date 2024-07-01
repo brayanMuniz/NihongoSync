@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/brayanMuniz/NihongoSync/db"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -52,7 +52,18 @@ func main() {
 		log.Fatalf("Failed to unmarshal JSON: %v", err)
 	}
 
-	log.Println(config.WanikaniApiKey)
+	// log.Println(config.WanikaniApiKey)
+	log.Print("TEST")
+
+	log.Println("Starting db connection...")
+	db, err := db.ConnectDB() // Using the ConnectDB function from the db package
+	if err != nil {
+		log.Println("Error connecting to the database:", err)
+		return
+	}
+	defer db.Close()
+
+	log.Println("Successfully connected to the database")
 
 	r := gin.Default()
 
@@ -86,12 +97,6 @@ func main() {
 		}
 
 		ctx.JSON(http.StatusOK, todaySummary)
-	})
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": data,
-		})
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080
