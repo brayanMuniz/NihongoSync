@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/brayanMuniz/NihongoSync/db"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
 	"net/http"
@@ -52,16 +53,15 @@ func main() {
 		log.Fatalf("Failed to unmarshal JSON: %v", err)
 	}
 
-	// log.Println(config.WanikaniApiKey)
-	log.Print("TEST")
+	log.Println(config.WanikaniApiKey)
 
 	log.Println("Starting db connection...")
-	db, err := db.ConnectDB() // Using the ConnectDB function from the db package
+	dbCon, err := db.ConnectDB() // Using the ConnectDB function from the db package
 	if err != nil {
 		log.Println("Error connecting to the database:", err)
 		return
 	}
-	defer db.Close()
+	defer dbCon.Close()
 
 	log.Println("Successfully connected to the database")
 
@@ -97,6 +97,33 @@ func main() {
 		}
 
 		ctx.JSON(http.StatusOK, todaySummary)
+	})
+
+	r.POST("/createuser", func(ctx *gin.Context) {
+		var user db.User
+		if err := ctx.ShouldBindJSON(&user); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Hash the password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			return
+		}
+		user.Password = string(hashedPassword)
+		user.CreatedAt = time.Now()
+		user.UpdatedAt = time.Now()
+		user.WanikaniSubscriptionActive = false // Default value
+
+		// Save the user to the database
+		if err := db.SaveUser(dbCon, &user); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080
