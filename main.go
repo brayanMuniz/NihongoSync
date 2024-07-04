@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -41,20 +40,6 @@ type Review struct {
 
 func main() {
 
-	// Read Json File
-	data, err := os.ReadFile("./secrets.json")
-	if err != nil {
-		log.Fatal("API KEYS NOT FOUND")
-	}
-
-	// Unmarshal the JSON data into the struct
-	var config Config
-	if err := json.Unmarshal(data, &config); err != nil {
-		log.Fatalf("Failed to unmarshal JSON: %v", err)
-	}
-
-	log.Println(config.WanikaniApiKey)
-
 	log.Println("Starting db connection...")
 	dbCon, err := db.ConnectDB() // Using the ConnectDB function from the db package
 	if err != nil {
@@ -67,9 +52,10 @@ func main() {
 
 	r := gin.Default()
 
+	// ! CURRENTLY INVALID
 	// https://api.wanikani.com/v2/summary
 	r.GET("/reviews/today", func(ctx *gin.Context) {
-		apiToken := config.WanikaniApiKey
+		apiToken := "change to get from database"
 		url := "https://api.wanikani.com/v2/summary"
 
 		req, err := http.NewRequest("GET", url, nil)
@@ -112,6 +98,7 @@ func main() {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 			return
 		}
+
 		user.Password = string(hashedPassword)
 		user.CreatedAt = time.Now()
 		user.UpdatedAt = time.Now()
