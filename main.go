@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/brayanMuniz/NihongoSync/db"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
 	"net/http"
@@ -87,25 +86,16 @@ func main() {
 
 	r.POST("/createuser", func(ctx *gin.Context) {
 		var user db.User
+
+		// Bind json to data
 		if err := ctx.ShouldBindJSON(&user); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Hash the password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-			return
-		}
-
-		user.Password = string(hashedPassword)
-		user.CreatedAt = time.Now()
-		user.UpdatedAt = time.Now()
-		user.WanikaniSubscriptionActive = false // Default value
-
 		// Save the user to the database
 		if err := db.SaveUser(dbCon, &user); err != nil {
+			log.Println("Failed to save user: ", err)
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user"})
 			return
 		}

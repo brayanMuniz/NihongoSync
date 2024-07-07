@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/brayanMuniz/NihongoSync/security"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"os"
 	"path/filepath"
@@ -22,6 +23,7 @@ type User struct {
 	WanikaniSubscriptionActive bool      `json:"wanikani_subscription_active" db:"wanikani_subscription_active"`
 	CreatedAt                  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                  time.Time `json:"updated_at" db:"updated_at"`
+	FirstReviewSession         int       `json:"first_review_session" db:"first_review_session"`
 }
 
 // Secrets holds the encryption key
@@ -69,17 +71,34 @@ func SaveUser(db *sql.DB, user *User) error {
 	}
 	encryptionKey := secrets.EncryptionKey
 
+	// encrypt the wanikani api key
 	encryptedApiKey, err := security.Encrypt(user.WanikaniApiKey, encryptionKey)
 	if err != nil {
 		log.Fatalf("error encrypting API key: %v", err)
 	}
-	query := `INSERT INTO users (username, email, password, wanikani_api_key, wanikani_subscription_active, created_at, updated_at)
-	          VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-	_, err = db.Exec(query, user.Username, user.Email, user.Password, encryptedApiKey, user.WanikaniSubscriptionActive, user.CreatedAt, user.UpdatedAt)
+	// Hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatalf("error: Failed to hash password: %v", err)
+	}
+
+	// Set User data
+	user.Password = string(hashedPassword)
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	user.WanikaniSubscriptionActive = false // Default value
+
+	// Execute the query into the database
+	query := `INSERT INTO users (username, email, password, wanikani_api_key, 
+	wanikani_subscription_active, created_at, updated_at, first_review_session)
+	          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	_, err = db.Exec(query, user.Username, user.Email, user.Password, encryptedApiKey,
+		user.WanikaniSubscriptionActive, user.CreatedAt, user.UpdatedAt, user.FirstReviewSession)
 
 	if err != nil {
 		return fmt.Errorf("error saving user to the database: %v", err)
 	}
+
 	return nil
 }
