@@ -1,10 +1,10 @@
 package db
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/brayanMuniz/NihongoSync/security"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -46,10 +46,9 @@ func LoadSecrets(basePath, relativePath string) (*Secrets, error) {
 
 	return &secrets, nil
 }
-
-func ConnectDB() (*sql.DB, error) {
+func ConnectDB() (*sqlx.DB, error) {
 	connStr := "user=brayanmuniz dbname=nihongosync sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
+	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %v", err)
 	}
@@ -59,7 +58,8 @@ func ConnectDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func SaveUser(db *sql.DB, user *User) error {
+func SaveUser(db *sqlx.DB, user *User) error {
+
 	// Get the passphrase to encrypt
 	basePath, err := os.Getwd()
 	if err != nil {
