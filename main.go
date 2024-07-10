@@ -28,6 +28,17 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/createuser", func(ctx *gin.Context) {
+		// Get the passphrase to encrypt
+		basePath, err := os.Getwd()
+		if err != nil {
+			log.Fatalf("Could not get working directory: %v", err)
+		}
+		secrets, err := security.LoadSecrets(basePath, "./secrets.json")
+		if err != nil {
+			log.Fatalf("failed to load secrets: %v", err)
+		}
+		encryptionKey := secrets.EncryptionKey
+
 		var user db.User
 
 		// Bind json to data
@@ -37,7 +48,7 @@ func main() {
 		}
 
 		// Save the user to the database
-		if err := db.SaveUser(dbCon, &user); err != nil {
+		if err := db.SaveUser(dbCon, &user, encryptionKey); err != nil {
 			log.Println("Failed to save user: ", err)
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user"})
 			return

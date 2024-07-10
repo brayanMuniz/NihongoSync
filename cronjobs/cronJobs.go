@@ -37,8 +37,7 @@ type Review struct {
 	SubjectIDs  []int     `json:"subject_ids"`
 }
 
-// TestFetchAndStore fetches review data and returns it
-func TestFetchAndStore(hour int, encryptionKey string) ([]SummaryResponse, error) {
+func TestFetchAndStore(hour int, encryptionKey string) (map[int]int, error) {
 	dbCon, err := db.ConnectDB()
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to the database: %v", err)
@@ -55,7 +54,8 @@ func TestFetchAndStore(hour int, encryptionKey string) ([]SummaryResponse, error
 
 	log.Println(len(users))
 
-	var responses []SummaryResponse
+	// Map to store user ID and the total count of reviews within the time range
+	reviewsCount := make(map[int]int)
 
 	for _, user := range users {
 		// Decrypt the api key
@@ -95,12 +95,24 @@ func TestFetchAndStore(hour int, encryptionKey string) ([]SummaryResponse, error
 			continue
 		}
 
-		responses = append(responses, summaryResponse)
+		// Gets the reviews due now and in 24 hours
+		totalReviews := 0
+		dueNow := len(summaryResponse.Data.Reviews[0].SubjectIDs)
+		for _, review := range summaryResponse.Data.Reviews {
+			totalReviews += len(review.SubjectIDs)
+		}
+		// NOTE: using this we can get how many reviews the user has done in a day,
+		// based on their start time
+		log.Println(dueNow, totalReviews)
+
+		// Store the total count of reviews for the user
+		reviewsCount[user.ID] = totalReviews
 	}
 
-	return responses, nil
+	return reviewsCount, nil
 }
 
+// TestFetchAndStore fetches review data and returns it
 func fetchAndStoreReviews() {
 	log.Println("Running fetchAndStoreReviews job...")
 

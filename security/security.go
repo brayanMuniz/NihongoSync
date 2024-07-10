@@ -25,7 +25,7 @@ func generateKey(passphrase string) []byte {
 	return hash[:]
 }
 
-// LoadSecrets loads the secrets from a JSON file
+// loads the secrets from a JSON file
 func LoadSecrets(basePath, relativePath string) (*Secrets, error) {
 	fullPath := filepath.Join(basePath, relativePath)
 	data, err := os.ReadFile(fullPath)
