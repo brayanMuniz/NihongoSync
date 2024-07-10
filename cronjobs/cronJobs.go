@@ -2,14 +2,16 @@ package cronjobs
 
 import (
 	"encoding/json"
-	"github.com/brayanMuniz/NihongoSync/db"
-	"github.com/brayanMuniz/NihongoSync/security"
-	_ "github.com/lib/pq"
-	"github.com/robfig/cron/v3"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/brayanMuniz/NihongoSync/db"
+	"github.com/brayanMuniz/NihongoSync/security"
+	_ "github.com/lib/pq"
+	"github.com/robfig/cron/v3"
 )
 
 type SummaryResponse struct {
@@ -33,6 +35,70 @@ type Lesson struct {
 type Review struct {
 	AvailableAt time.Time `json:"available_at"`
 	SubjectIDs  []int     `json:"subject_ids"`
+}
+
+// TestFetchAndStore fetches review data and returns it
+func TestFetchAndStore(hour int, encryptionKey string) ([]SummaryResponse, error) {
+	dbCon, err := db.ConnectDB()
+	if err != nil {
+		return nil, fmt.Errorf("error connecting to the database: %v", err)
+	}
+	defer dbCon.Close()
+
+	var users []db.User
+
+	query := "SELECT * FROM users"
+	err = dbCon.Select(&users, query)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching users: %v", err)
+	}
+
+	log.Println(len(users))
+
+	var responses []SummaryResponse
+
+	for _, user := range users {
+		// Decrypt the api key
+		decryptedApiKey, err := security.Decrypt(user.WanikaniApiKey, encryptionKey)
+		if err != nil {
+			log.Println("Error decrypting API key:", err)
+			continue
+		}
+
+		// Format and send get request
+		url := "https://api.wanikani.com/v2/summary"
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			log.Println("Failed to create request:", err)
+			continue
+		}
+
+		req.Header.Set("Authorization", "Bearer "+decryptedApiKey)
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Println("Failed to send request:", err)
+			continue
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("Failed to read response body:", err)
+			continue
+		}
+
+		var summaryResponse SummaryResponse
+		if err := json.Unmarshal(body, &summaryResponse); err != nil {
+			log.Println("Failed to unmarshal JSON:", err)
+			continue
+		}
+
+		responses = append(responses, summaryResponse)
+	}
+
+	return responses, nil
 }
 
 func fetchAndStoreReviews() {

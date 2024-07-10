@@ -3,9 +3,11 @@ package main
 import (
 	"github.com/brayanMuniz/NihongoSync/cronjobs"
 	"github.com/brayanMuniz/NihongoSync/db"
+	"github.com/brayanMuniz/NihongoSync/security"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -42,6 +44,28 @@ func main() {
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+	})
+
+	// For testing
+	r.GET("/test", func(ctx *gin.Context) {
+		// Get the passphrase to encrypt
+		basePath, err := os.Getwd()
+		if err != nil {
+			log.Fatalf("Could not get working directory: %v", err)
+		}
+		secrets, err := security.LoadSecrets(basePath, "./secrets.json")
+		if err != nil {
+			log.Fatalf("failed to load secrets: %v", err)
+		}
+		encryptionKey := secrets.EncryptionKey
+
+		responses, err := cronjobs.TestFetchAndStore(8, encryptionKey)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, responses)
 	})
 
 	r.Run() // listen and serve on 0.0.0.0:8080

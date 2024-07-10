@@ -23,7 +23,8 @@ type User struct {
 	WanikaniSubscriptionActive bool      `json:"wanikani_subscription_active" db:"wanikani_subscription_active"`
 	CreatedAt                  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                  time.Time `json:"updated_at" db:"updated_at"`
-	FirstReviewSession         int       `json:"first_review_session" db:"first_review_session"`
+	ReviewStartTime            int       `json:"review_start_time" db:"review_start_time"`
+	ReviewEndTime              int       `json:"review_end_time" db:"review_end_time"`
 }
 
 // Secrets holds the encryption key
@@ -46,6 +47,7 @@ func LoadSecrets(basePath, relativePath string) (*Secrets, error) {
 
 	return &secrets, nil
 }
+
 func ConnectDB() (*sqlx.DB, error) {
 	connStr := "user=brayanmuniz dbname=nihongosync sslmode=disable"
 	db, err := sqlx.Open("postgres", connStr)
@@ -59,7 +61,6 @@ func ConnectDB() (*sqlx.DB, error) {
 }
 
 func SaveUser(db *sqlx.DB, user *User) error {
-
 	// Get the passphrase to encrypt
 	basePath, err := os.Getwd()
 	if err != nil {
@@ -91,10 +92,10 @@ func SaveUser(db *sqlx.DB, user *User) error {
 
 	// Execute the query into the database
 	query := `INSERT INTO users (username, email, password, wanikani_api_key, 
-	wanikani_subscription_active, created_at, updated_at, first_review_session)
-	          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	wanikani_subscription_active, created_at, updated_at, review_start_time, review_end_time)
+	          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 	_, err = db.Exec(query, user.Username, user.Email, user.Password, encryptedApiKey,
-		user.WanikaniSubscriptionActive, user.CreatedAt, user.UpdatedAt, user.FirstReviewSession)
+		user.WanikaniSubscriptionActive, user.CreatedAt, user.UpdatedAt, user.ReviewStartTime, user.ReviewEndTime)
 
 	if err != nil {
 		return fmt.Errorf("error saving user to the database: %v", err)
