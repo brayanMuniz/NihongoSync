@@ -37,7 +37,7 @@ type Review struct {
 	SubjectIDs  []int     `json:"subject_ids"`
 }
 
-func TestFetchAndStore(hour int, encryptionKey string) (map[int]int, error) {
+func TestFetchAndStore(encryptionKey string) (map[int]int, error) {
 	dbCon, err := db.ConnectDB()
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to the database: %v", err)
@@ -96,17 +96,25 @@ func TestFetchAndStore(hour int, encryptionKey string) (map[int]int, error) {
 		}
 
 		// Gets the reviews due now and in 24 hours
-		totalReviews := 0
+		dueIn24Hours := 0
 		dueNow := len(summaryResponse.Data.Reviews[0].SubjectIDs)
 		for _, review := range summaryResponse.Data.Reviews {
-			totalReviews += len(review.SubjectIDs)
+			dueIn24Hours += len(review.SubjectIDs)
 		}
-		// NOTE: using this we can get how many reviews the user has done in a day,
-		// based on their start time
-		log.Println(dueNow, totalReviews)
 
+		// TODO: save to wanikanireviews based on this
+		// id | user_id | review_date | due_now | due_in_24_hours
 		// Store the total count of reviews for the user
-		reviewsCount[user.ID] = totalReviews
+		query := `INSERT INTO wanikanireviews (user_id, review_date, due_now, due_in_24_hours)
+	          VALUES ($1, $2, $3, $4)`
+		_, err = dbCon.Exec(query, user.ID, time.Now(), dueNow, dueIn24Hours)
+
+		if err != nil {
+			log.Printf("Error saving user %d data to the database: %v", user.ID, err)
+			continue
+		}
+
+		reviewsCount[user.ID] = dueIn24Hours
 	}
 
 	return reviewsCount, nil

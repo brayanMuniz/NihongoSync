@@ -57,7 +57,7 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
 	})
 
-	// For testing
+	// NOTE: For testing
 	r.GET("/test", func(ctx *gin.Context) {
 		// Get the passphrase to encrypt
 		basePath, err := os.Getwd()
@@ -70,7 +70,7 @@ func main() {
 		}
 		encryptionKey := secrets.EncryptionKey
 
-		responses, err := cronjobs.TestFetchAndStore(8, encryptionKey)
+		responses, err := cronjobs.TestFetchAndStore(encryptionKey)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
