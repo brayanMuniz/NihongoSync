@@ -37,25 +37,28 @@ type Review struct {
 	SubjectIDs  []int     `json:"subject_ids"`
 }
 
-func TestFetchAndStore(encryptionKey string) (map[int]int, error) {
+func fetchAndStoreReviews(encryptionKey string) {
+	log.Println("Running fetchAndStoreReviews job...")
+
+	// Connect to Database
 	dbCon, err := db.ConnectDB()
 	if err != nil {
-		return nil, fmt.Errorf("error connecting to the database: %v", err)
+		log.Println("Error connecting to the database:", err)
+		return
 	}
 	defer dbCon.Close()
 
+	// Run the Query to fetch users where review hour is the current hour
 	var users []db.User
+	currentTimeStr := fmt.Sprintf("%02d:00:00", time.Now().Hour()) // Convert hour to "HH:00:00" format
+	log.Println("Current hour string:", currentTimeStr)
 
-	query := "SELECT * FROM users"
-	err = dbCon.Select(&users, query)
+	query := "SELECT id, wanikani_api_key, review_start_time FROM users WHERE review_start_time = $1"
+	err = dbCon.Select(&users, query, currentTimeStr)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching users: %v", err)
+		log.Println("Error fetching users:", err)
+		return
 	}
-
-	log.Println(len(users))
-
-	// Map to store user ID and the total count of reviews within the time range
-	reviewsCount := make(map[int]int)
 
 	for _, user := range users {
 		// Decrypt the api key
@@ -102,91 +105,25 @@ func TestFetchAndStore(encryptionKey string) (map[int]int, error) {
 			dueIn24Hours += len(review.SubjectIDs)
 		}
 
-		// TODO: save to wanikanireviews based on this
-		// id | user_id | review_date | due_now | due_in_24_hours
-		// Store the total count of reviews for the user
-		query := `INSERT INTO wanikanireviews (user_id, review_date, due_now, due_in_24_hours)
-	          VALUES ($1, $2, $3, $4)`
-		_, err = dbCon.Exec(query, user.ID, time.Now(), dueNow, dueIn24Hours)
+		query := `INSERT INTO wanikanireviews (user_id, review_date, due_now, due_in_24_hours, review_time)
+	          VALUES ($1, $2, $3, $4, $5)`
+		_, err = dbCon.Exec(query, user.ID, time.Now(), dueNow, dueIn24Hours, currentTimeStr)
 
 		if err != nil {
 			log.Printf("Error saving user %d data to the database: %v", user.ID, err)
 			continue
 		}
 
-		reviewsCount[user.ID] = dueIn24Hours
-	}
-
-	return reviewsCount, nil
-}
-
-// TestFetchAndStore fetches review data and returns it
-func fetchAndStoreReviews() {
-	log.Println("Running fetchAndStoreReviews job...")
-
-	dbCon, err := db.ConnectDB()
-	if err != nil {
-		log.Println("Error connecting to the database:", err)
-		return
-	}
-	defer dbCon.Close()
-
-	currentHour := time.Now().Hour()
-	var users []db.User
-
-	query := "SELECT id, wanikani_api_key, first_review_session FROM users WHERE first_review_session = $1 OR first_review_session = $2"
-	err = dbCon.Select(&users, query, currentHour, (currentHour+12)%24)
-	if err != nil {
-		log.Println("Error fetching users:", err)
-		return
-	}
-
-	for _, user := range users {
-		// Decrypt the api key
-		decryptedApiKey, err := security.Decrypt(user.WanikaniApiKey, "your-encryption-key")
-		if err != nil {
-			log.Println("Error decrypting API key:", err)
-			continue
-		}
-
-		// Format and send get request
-		url := "https://api.wanikani.com/v2/summary"
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			log.Println("Failed to create request:", err)
-			continue
-		}
-
-		req.Header.Set("Authorization", "Bearer "+decryptedApiKey)
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			log.Println("Failed to send request:", err)
-			continue
-		}
-		defer resp.Body.Close()
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Println("Failed to read response body:", err)
-			continue
-		}
-
-		var summaryResponse SummaryResponse
-		if err := json.Unmarshal(body, &summaryResponse); err != nil {
-			log.Println("Failed to unmarshal JSON:", err)
-			continue
-		}
-
-		log.Println(summaryResponse)
+		log.Printf("User %d: dueNow=%d, dueIn24Hours=%d, inserted into wanikanireviews", user.ID, dueNow, dueIn24Hours)
 
 	}
 }
 
-func InitCronJobs() {
+func InitCronJobs(encryptionKey string) {
 	log.Println("Starting Cron Jobs")
 	c := cron.New()
-	c.AddFunc("@hourly", fetchAndStoreReviews)
+	c.AddFunc("@hourly", func() {
+		fetchAndStoreReviews(encryptionKey)
+	})
 	c.Start()
 }
