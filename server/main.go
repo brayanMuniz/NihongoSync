@@ -4,6 +4,7 @@ import (
 	"github.com/brayanMuniz/NihongoSync/cronjobs"
 	"github.com/brayanMuniz/NihongoSync/db"
 	"github.com/brayanMuniz/NihongoSync/security"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -38,6 +39,9 @@ func main() {
 
 	// Routes
 	r := gin.Default()
+
+	// Serve the frontend
+	r.Use(static.Serve("/", static.LocalFile("../client/build", true)))
 
 	r.POST("/createuser", func(ctx *gin.Context) {
 		// Get the passphrase to encrypt
