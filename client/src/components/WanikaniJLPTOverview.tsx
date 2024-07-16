@@ -1,6 +1,6 @@
 import React from 'react';
-import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
-import { wanikaniJLPTData } from '../types/WanikaniJLPT';
+import { calculateJLPTLevelHelper, UserWanikaniLevel } from '../types/UserWanikaniLevel';
+import LeveltoJLPTTable from './LeveltoJLPTTable';
 
 interface OverviewProps {
   userWanikaniLevel: UserWanikaniLevel;
@@ -12,32 +12,25 @@ const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel }) =>
   };
 
   const calculateJLPTLevel = () => {
-    const currentLevel: number = userWanikaniLevel.length + 1
-
-    if (currentLevel === 0) return "N/A";
-
-    const jlptLevels = ["N5", "N4", "N3", "N2", "N1"];
-    let closestLevel = "A";
-    let closestDifference = Infinity;
-
-    jlptLevels.forEach((jlptLevel) => {
-      const percentages = wanikaniJLPTData[jlptLevel as keyof typeof wanikaniJLPTData];
-      const currentPercentage = percentages[currentLevel - 1];
-
-      if (currentPercentage !== null) {
-        const difference = Math.abs(50 - currentPercentage);
-        if (difference < closestDifference) {
-          closestDifference = difference;
-          closestLevel = jlptLevel;
-        }
-      }
-    });
-
-    return closestLevel;
+    return calculateJLPTLevelHelper(userWanikaniLevel)
   };
 
   const calculateDaysOnCurrentLevel = () => {
-    return 0;
+    let daysOnCurrentLevel: number = 0;
+
+    if (userWanikaniLevel.length > 0) {
+      const currentLevelData = userWanikaniLevel[userWanikaniLevel.length - 1].data;
+      const unlockedAt = new Date(currentLevelData.unlocked_at);
+      const today = new Date();
+
+      // Calculate the difference in time (in milliseconds)
+      const diffTime = Math.abs(today.getTime() - unlockedAt.getTime());
+
+      // Convert the time difference to days
+      daysOnCurrentLevel = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    return daysOnCurrentLevel;
   };
 
   return (
@@ -46,6 +39,7 @@ const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel }) =>
       <p>Total Lessons and Reviews Due Now: {calculateTotalLessonsAndReviews()}</p>
       <p>Approximate JLPT Level: {calculateJLPTLevel()}</p>
       <p>Days on Current Level: {calculateDaysOnCurrentLevel()}</p>
+      <LeveltoJLPTTable userWanikaniLevel={userWanikaniLevel} />
     </div>
   );
 }
