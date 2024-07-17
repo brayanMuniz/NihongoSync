@@ -5,6 +5,7 @@ import './App.css';
 import { UserWanikaniLevel } from './types/UserWanikaniLevel';
 import WanikaniJLPTOverview from './components/WanikaniJLPTOverview';
 import { LNTvSeasonData } from './types/learnNativelyLevel';
+import WanikaniLNMatch from './components/WanikaniLNMatch';
 
 function App() {
   const [dataReady, setDataReady] = useState(false)
@@ -90,10 +91,7 @@ function App() {
           <>
             <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} />
             {seasonData.length > 0 && (
-              <div>
-                <h2>Uploaded TV Season Data</h2>
-                <pre>{JSON.stringify(seasonData, null, 2)}</pre>
-              </div>
+              <WanikaniLNMatch userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
             )}
           </>
         ) : null

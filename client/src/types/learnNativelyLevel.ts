@@ -5,7 +5,8 @@ export interface LNtoWKMapping {
   wkLevel: number;
 }
 
-const lnToJLPTMapping: { range: [number, number], jlptLevel: JLPTLevels }[] = [
+export const lnToJLPTMapping: { range: [number, number], jlptLevel: JLPTLevels }[] = [
+  { range: [0, 12], jlptLevel: "N5" },
   { range: [13, 19], jlptLevel: "N4" },
   { range: [20, 26], jlptLevel: "N3" },
   { range: [27, 33], jlptLevel: "N2" },
@@ -55,13 +56,13 @@ export function getWaniKaniLevelFromLN(LNLevel: number): number | null {
   return mapping ? mapping.wkLevel : null; // Return null if no matching level is found
 }
 
-export function getJLPTLevelFromLN(lnLevel: number): JLPTLevels | null {
+export function getJLPTLevelFromLN(lnLevel: number): JLPTLevels {
   for (const mapping of lnToJLPTMapping) {
     if (lnLevel >= mapping.range[0] && lnLevel <= mapping.range[1]) {
       return mapping.jlptLevel;
     }
   }
-  return null; // Return null if no matching level is found
+  return "N1"; // Return null if no matching level is found
 }
 
 export type LNTvSeasonData = {
