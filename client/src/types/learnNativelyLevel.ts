@@ -63,3 +63,35 @@ export function getJLPTLevelFromLN(lnLevel: number): JLPTLevels | null {
   }
   return null; // Return null if no matching level is found
 }
+
+export type LNTvSeasonData = {
+  Language: string;
+  "TV Season Title": string;
+  Status: string;
+  "Date Started": string;
+  "Date Started (Raw)": string;
+  "Date Finished": string;
+  "Date Finished (Raw)": string;
+  "Current Episode": string;
+  "Episodes Watched": string;
+  "Number Of Episodes": string;
+  "Total Minutes Watched": string;
+  "Private Notes": string;
+  "My Rating": string;
+  "My Entertainment Rating": string;
+  "My Language Learning Rating": string;
+  "My Review Headline": string;
+  "My Review": string;
+  "My Lists": string;
+  "TMDB ID": string;
+  "TV Season ID": string;
+  "Difficulty Level": string;
+  "Difficulty Level Temporary": string;
+  "Series ID": string;
+  "Series Title": string;
+  "Series Order": string;
+  "TV Season Tags (No Spoilers)": string;
+  "TV Season Genre Tags": string;
+  "TV Season Spoiler Tags": string;
+};
+
