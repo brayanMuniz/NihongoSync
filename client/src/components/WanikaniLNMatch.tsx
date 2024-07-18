@@ -1,6 +1,7 @@
 import React from 'react';
 import { LNTvSeasonData } from '../types/learnNativelyLevel';
 import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
+import ChartComponent from './ChartComponent';
 import DoughnutJLPTChart from './DoughnutJLPTChart';
 
 
@@ -15,11 +16,10 @@ const WanikaniLNMatch: React.FC<Props> = ({ userWanikaniLevel, seasonData }) => 
     return total + (isNaN(hours) ? 0 : hours); // Ensure no NaN values
   }, 0);
 
-
-
-
   return (
     <div>
+      <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} totalHoursWatched={totalHoursWatched} />
+
       <DoughnutJLPTChart userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} totalHoursWatched={totalHoursWatched} />
 
     </div>

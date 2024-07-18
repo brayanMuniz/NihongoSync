@@ -44,11 +44,11 @@ const DoughnutJLPTChart: React.FC<ChartComponentProps> = ({ seasonData, totalHou
 
   // Classify each show to its JLPT level using its difficulty rating and increment the JLPT counter
   seasonData.forEach((season) => {
-    const difficultyLevel = parseInt(season["Difficulty Level"]);
+    const difficultyLevel = season['Difficulty Level']
     const hours = parseInt(season["Total Minutes Watched"]) / 60;
 
-    if (!isNaN(difficultyLevel) && !isNaN(hours)) {
-      const jlptLevel = getJLPTLevelFromLN(difficultyLevel);
+    if (!isNaN(Number(difficultyLevel)) && !isNaN(hours)) {
+      const jlptLevel = getJLPTLevelFromLN(Number(difficultyLevel));
       if (jlptLevel) {
         jlptLevelCounters[jlptLevel] += hours;
       }
