@@ -16,6 +16,28 @@ export type UserWanikaniLevel = {
   };
 }[];
 
+const defaultWanikaniLevelData = {
+  created_at: '',
+  level: 0,
+  unlocked_at: '',
+  started_at: '',
+  passed_at: null,
+  completed_at: null,
+  abandoned_at: null,
+};
+
+
+export const createDefaultWanikaniLevel = (): UserWanikaniLevel => {
+  return [
+    {
+      id: -1,
+      object: 'default',
+      url: '',
+      data_updated_at: '',
+      data: { ...defaultWanikaniLevelData },
+    },
+  ];
+};
 
 export const calculateJLPTLevelHelper = (levelData: UserWanikaniLevel): JLPTLevels => {
   const currentLevel: number = levelData.length + 1;

@@ -2,15 +2,14 @@ import { FormEvent, useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import axios from 'axios';
 import './App.css';
-import { UserWanikaniLevel } from './types/UserWanikaniLevel';
-import WanikaniJLPTOverview from './components/WanikaniJLPTOverview';
+import { createDefaultWanikaniLevel, UserWanikaniLevel } from './types/UserWanikaniLevel';
 import { LNTvSeasonData } from './types/learnNativelyLevel';
-import WanikaniLNMatch from './components/WanikaniLNMatch';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [dataReady, setDataReady] = useState(false)
   const [wanikaniApiKey, setWanikaniApiKey] = useState("")
-  const [userWanikaniLevel, setUserWanikaniLevel] = useState<UserWanikaniLevel | null>(null);
+  const [userWanikaniLevel, setUserWanikaniLevel] = useState<UserWanikaniLevel>(createDefaultWanikaniLevel());
   const [seasonData, setSeasonData] = useState<LNTvSeasonData[]>([])
 
   useEffect(() => {
@@ -87,14 +86,7 @@ function App() {
   return (
     <div className="App">
       {dataReady ? (
-        userWanikaniLevel ? (
-          <>
-            <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} />
-            {seasonData.length > 0 && (
-              <WanikaniLNMatch userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
-            )}
-          </>
-        ) : null
+        <Dashboard userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
       ) : (
 
         <div>
