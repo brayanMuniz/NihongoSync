@@ -23,8 +23,9 @@ export const wanikaniJLPTData: WanikaniJLPTData = {
 
 
 export const getJLPTLevelFromWKLevel = (wanikaniLevel: number): JLPTLevels => {
-  if (wanikaniLevel >= 5 && wanikaniLevel <= 16) return "N4";
-  if (wanikaniLevel >= 17 && wanikaniLevel <= 25) return "N3";
+  if (wanikaniLevel <= 4) return "N5"
+  if (wanikaniLevel >= 5 && wanikaniLevel <= 15) return "N4";
+  if (wanikaniLevel >= 16 && wanikaniLevel <= 25) return "N3";
   if (wanikaniLevel >= 26 && wanikaniLevel <= 50) return "N2";
   return "N1"; // For levels above 50
 };
