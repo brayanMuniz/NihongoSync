@@ -66,7 +66,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
     const borderColor = backgroundColor;
 
     return {
-      label: season.title, // Label each dataset with the season title
+      label: season.title,
       data: data,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
@@ -97,6 +97,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
           text: 'Wanikani Level',
         },
       },
+
       y: {
         stacked: true,
         beginAtZero: true,
