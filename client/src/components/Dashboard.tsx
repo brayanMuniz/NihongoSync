@@ -3,13 +3,11 @@ import React from 'react';
 // types
 import { LNTvSeasonData } from '../types/learnNativelyLevel';
 import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
+import ChartComponent from './ChartComponent';
 
 // components 
 import DoughnutJLPTChart from './DoughnutJLPTChart';
-import LeveltoJLPTTable from './LeveltoJLPTTable';
 import WanikaniJLPTOverview from './WanikaniJLPTOverview';
-import WanikaniLNMatch from './WanikaniLNMatch';
-
 
 interface Props {
   userWanikaniLevel: UserWanikaniLevel;
@@ -26,11 +24,10 @@ const Dashboard: React.FC<Props> = ({ userWanikaniLevel, seasonData }) => {
   return (
     <div className="flex">
       <div className="w-10/12 p-4">
-        <WanikaniLNMatch
-          userWanikaniLevel={userWanikaniLevel}
-          seasonData={seasonData}
+        <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData}
           totalHoursWatched={totalHoursWatched}
         />
+
       </div>
       <div className="w-2/12 p-4">
         <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} />

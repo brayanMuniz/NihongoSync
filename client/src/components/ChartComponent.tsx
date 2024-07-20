@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -31,17 +31,51 @@ interface ChartComponentProps {
 }
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seasonData, totalHoursWatched }) => {
+  const [chartLabels, setChartLabels] = useState<number[]>([])
+  const [chartDataSets, setChartDataSets] = useState<any[]>([])
+  const [hoveredData, setHoveredData] = useState<LNTvSeasonData | null>(null);
   const wanikaniLevel = userWanikaniLevel.length;
 
-  let hoursWatched = seasonData.map((season) => ({
-    title: season["TV Season Title"],
-    hours: Math.floor(parseInt(season["Total Minutes Watched"]) / 60),
-    wanikaniLevel: getWaniKaniLevelFromLN(season['Difficulty Level']),
-  }));
+  useEffect(() => {
+    let hoursWatched = seasonData.map((season) => ({
+      title: season["TV Season Title"],
+      hours: Math.floor(parseInt(season["Total Minutes Watched"]) / 60),
+      wanikaniLevel: getWaniKaniLevelFromLN(season['Difficulty Level']),
+      hoverData: season
+    }));
 
-  hoursWatched = hoursWatched.filter(season => season.hours > 0);
-  console.log(hoursWatched.length)
+    hoursWatched = hoursWatched.filter(season => season.hours > 0);
 
+    // Find min and max Wanikani levels and set as labels
+    const minLevel = Math.min(...hoursWatched.map(season => season.wanikaniLevel));
+    const maxLevel = Math.max(...hoursWatched.map(season => season.wanikaniLevel));
+    const labels = Array.from({ length: maxLevel - minLevel + 1 }, (_, i) => i + minLevel);
+
+
+    const datasets = hoursWatched.map((season) => {
+      const data = Array(labels.length).fill(0);
+      const index = labels.indexOf(season.wanikaniLevel);
+      if (index !== -1) {
+        data[index] = season.hours;
+      }
+
+      const backgroundColor = getRandomColor() + 'B3';
+      const borderColor = backgroundColor;
+
+      return {
+        label: season.title,
+        data: data,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        borderWidth: 1,
+        stack: 'combined',
+        extraData: season.hoverData
+      };
+    });
+
+    setChartLabels(labels);
+    setChartDataSets(datasets);
+  }, [userWanikaniLevel, seasonData, totalHoursWatched])
 
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
@@ -52,34 +86,9 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
     return color;
   };
 
-  const labels = Array.from({ length: 60 - 5 + 1 }, (_, i) => i + 5);
-
-  // Create a dataset for each season and fill data according to Wanikani levels
-  const datasets = hoursWatched.map((season) => {
-    const data = Array(labels.length).fill(0);
-    const index = labels.indexOf(season.wanikaniLevel);
-    if (index !== -1) {
-      data[index] = season.hours;
-    }
-
-    const backgroundColor = getRandomColor() + 'B3';
-    const borderColor = backgroundColor;
-
-    return {
-      label: season.title,
-      data: data,
-      backgroundColor: backgroundColor,
-      borderColor: borderColor,
-      borderWidth: 1,
-      stack: 'combined',
-    };
-  });
-
-  console.log(datasets)
-
   const chartData = {
-    labels: labels,
-    datasets: datasets
+    labels: chartLabels,
+    datasets: chartDataSets
   };
 
   const chartOptions: ChartOptions<'bar'> = {
@@ -124,19 +133,42 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
       },
 
       tooltip: {
-        callbacks: {
-          label: function(context) {
-            const dataset = context.dataset;
-            const season = hoursWatched.find(season => season.title === dataset.label);
-            return season ? `${season.title}: ${season.hours} hours` : '';
-          },
-        },
+        enabled: false
       },
 
     },
-  };
 
-  return <Bar data={chartData} options={chartOptions} />;
+    onHover: (_, chartElement) => {
+      if (chartElement.length > 0) {
+        const index = chartElement[0].datasetIndex;
+        const dataset = chartData.datasets[index];
+        const season = dataset.extraData; // Access extra data here
+        // If not null and not the previous hover
+        if (season && (hoveredData === null || hoveredData !== season)) {
+          setHoveredData(season);
+        }
+      }
+    }
+
+  };
+  return (
+    <div className="flex">
+      <div className="w-10/12 p-2">
+        <Bar data={chartData} options={chartOptions} />
+      </div>
+      <div className="w-3/12 p-5">
+        {hoveredData ? (
+          <div>
+            <h3>{hoveredData['Series Title']}</h3>
+            <h3>{hoveredData['Series ID']}</h3>
+            <h3>{hoveredData['TV Season ID']}</h3>
+          </div>
+        ) : (
+          <p>Hover over a bar to see details</p>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ChartComponent;
