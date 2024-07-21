@@ -3,14 +3,11 @@ import { calculateJLPTLevelHelper, UserWanikaniLevel } from '../types/UserWanika
 import LeveltoJLPTTable from './LeveltoJLPTTable';
 
 interface OverviewProps {
+  totalHoursWatched: number
   userWanikaniLevel: UserWanikaniLevel;
 }
 
-const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel }) => {
-  const calculateTotalLessonsAndReviews = () => {
-    return 0;
-  };
-
+const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel, totalHoursWatched }) => {
   const calculateJLPTLevel = () => {
     return calculateJLPTLevelHelper(userWanikaniLevel)
   };
@@ -34,14 +31,18 @@ const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel }) =>
   };
 
   return (
-    <div>
-      <h2>Wanikani Level Overview</h2>
-      <p>Total Lessons and Reviews Due Now: {calculateTotalLessonsAndReviews()}</p>
-      <p>Approximate JLPT Level: {calculateJLPTLevel()}</p>
-      <p>Days on Current Level: {calculateDaysOnCurrentLevel()}</p>
+    <div className="space-y-4">
+      <h2 className="text-2xl font-semibold mb-4">Wanikani Level: {userWanikaniLevel.length}, Total Hours Watched: {totalHoursWatched} </h2>
+
+      <div className="text-lg flex space-x-4 items-center justify-center">
+        <p>~JLPT Level: {calculateJLPTLevel()}</p>
+        <p>Days on Current Level: {calculateDaysOnCurrentLevel()}</p>
+      </div>
+
       <LeveltoJLPTTable userWanikaniLevel={userWanikaniLevel} />
     </div>
   );
+
 }
 
 export default WanikaniJLPTOverview;

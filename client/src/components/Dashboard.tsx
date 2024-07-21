@@ -12,7 +12,6 @@ import WanikaniJLPTOverview from './WanikaniJLPTOverview';
 interface Props {
   userWanikaniLevel: UserWanikaniLevel;
   seasonData: LNTvSeasonData[]
-
 }
 
 const Dashboard: React.FC<Props> = ({ userWanikaniLevel, seasonData }) => {
@@ -23,20 +22,20 @@ const Dashboard: React.FC<Props> = ({ userWanikaniLevel, seasonData }) => {
 
   return (
     <div className="flex">
-      <div className="w-10/12 p-4">
-        <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData}
-          totalHoursWatched={totalHoursWatched}
-        />
 
-      </div>
-      <div className="w-2/12 p-4">
-        <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} />
-        <DoughnutJLPTChart
-          userWanikaniLevel={userWanikaniLevel}
-          seasonData={seasonData}
-          totalHoursWatched={totalHoursWatched}
+      <div className="w-8/12 p-4">
+        <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData}
         />
       </div>
+
+      <div className="w-4/12 p-4 flex flex-col space-y-4">
+        <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} totalHoursWatched={totalHoursWatched} />
+        <DoughnutJLPTChart
+          seasonData={seasonData}
+          className="w-1/2 h-1/2"
+        />
+      </div>
+
     </div>
   );
 }

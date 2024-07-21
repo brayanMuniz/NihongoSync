@@ -25,16 +25,20 @@ ChartJS.register(
 );
 
 interface ChartComponentProps {
-  totalHoursWatched: number
   userWanikaniLevel: UserWanikaniLevel;
   seasonData: LNTvSeasonData[];
 }
 
-const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seasonData, totalHoursWatched }) => {
+const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seasonData }) => {
   const [chartLabels, setChartLabels] = useState<number[]>([])
   const [chartDataSets, setChartDataSets] = useState<any[]>([])
   const [hoveredData, setHoveredData] = useState<LNTvSeasonData | null>(null);
-  const wanikaniLevel = userWanikaniLevel.length;
+
+  useEffect(() => {
+    if (hoveredData) {
+      console.log(hoveredData)
+    }
+  }, [hoveredData]);
 
   useEffect(() => {
     let hoursWatched = seasonData.map((season) => ({
@@ -75,7 +79,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
 
     setChartLabels(labels);
     setChartDataSets(datasets);
-  }, [userWanikaniLevel, seasonData, totalHoursWatched])
+  }, [userWanikaniLevel, seasonData])
 
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
@@ -128,8 +132,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
         position: 'top',
       },
       title: {
-        display: true,
-        text: `Wanikani Level: ${wanikaniLevel}, Total Hours Watched: ${Math.floor(totalHoursWatched)}`,
+        display: false,
       },
 
       tooltip: {
@@ -156,12 +159,15 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
       <div className="w-10/12 p-2">
         <Bar data={chartData} options={chartOptions} />
       </div>
-      <div className="w-3/12 p-5">
+      <div className="w-2/12 p-5">
         {hoveredData ? (
           <div>
             <h3>{hoveredData['Series Title']}</h3>
-            <h3>{hoveredData['Series ID']}</h3>
-            <h3>{hoveredData['TV Season ID']}</h3>
+            <h3>LN: {hoveredData['Series ID']}</h3>
+            <h3>seasonID: {hoveredData['TV Season ID']}</h3>
+
+            <h3>tmbd: {hoveredData['TMDB ID']}</h3>
+            <h3>season # {hoveredData['Series Order']}</h3>
           </div>
         ) : (
           <p>Hover over a bar to see details</p>

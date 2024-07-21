@@ -13,7 +13,6 @@ import {
 import { Doughnut } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { LNTvSeasonData, getJLPTLevelFromLN } from '../types/learnNativelyLevel';
-import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
 import { JLPTLevels } from '../types/WanikaniJLPT';
 
 ChartJS.register(
@@ -28,12 +27,11 @@ ChartJS.register(
 );
 
 interface ChartComponentProps {
-  totalHoursWatched: number
-  userWanikaniLevel: UserWanikaniLevel;
   seasonData: LNTvSeasonData[];
+  className?: string
 }
 
-const DoughnutJLPTChart: React.FC<ChartComponentProps> = ({ seasonData, totalHoursWatched }) => {
+const DoughnutJLPTChart: React.FC<ChartComponentProps> = ({ seasonData, className }) => {
   const jlptLevelCounters: { [key in JLPTLevels]: number } = {
     N5: 0,
     N4: 0,
@@ -81,13 +79,12 @@ const DoughnutJLPTChart: React.FC<ChartComponentProps> = ({ seasonData, totalHou
         position: 'top',
       },
       title: {
-        display: true,
-        text: `Total Hours Watched: ${totalHoursWatched.toFixed(2)}`,
+        display: false,
       },
     },
   };
 
-  return <Doughnut data={chartData} options={chartOptions} />;
+  return <div className={className}><Doughnut data={chartData} options={chartOptions} /></div>;
 };
 
 export default DoughnutJLPTChart;

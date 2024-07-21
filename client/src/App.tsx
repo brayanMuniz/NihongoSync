@@ -22,8 +22,10 @@ function App() {
       setWanikaniApiKey(storedApiKey);
       setUserWanikaniLevel(JSON.parse(storedUserWanikaniLevelData));
     }
-    if (storedSeasonData != null)
+    if (storedSeasonData != null) {
+      console.log(seasonData)
       setSeasonData(JSON.parse(storedSeasonData))
+    }
   }, []);
 
   // NOTE: We need this second useEffect because state updates (setWanikaniApiKey and setUserWanikaniLevel) 
