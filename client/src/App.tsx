@@ -22,6 +22,7 @@ function App() {
       setWanikaniApiKey(storedApiKey);
       setUserWanikaniLevel(JSON.parse(storedUserWanikaniLevelData));
     }
+
     if (storedSeasonData != null) {
       console.log(seasonData)
       setSeasonData(JSON.parse(storedSeasonData))
@@ -78,20 +79,62 @@ function App() {
         complete: (results) => {
           setSeasonData(results.data);
           localStorage.setItem("seasonData", JSON.stringify(results.data))
-          console.log(results.data);
         },
         header: true
       });
     }
   }
 
+  const refreshWKLevelData = async () => {
+
+    const storedApiKey = localStorage.getItem("wanikaniApiKey");
+    if (storedApiKey) {
+
+      try {
+        let wanikaniLevelsUrl: string = "https://api.wanikani.com/v2/level_progressions"
+        const response = await axios.get(wanikaniLevelsUrl, {
+          headers: {
+            Authorization: `Bearer ${wanikaniApiKey}`
+          }
+        });
+
+        // If the response is successful, update data
+        if (response.status === 200) {
+          const responseData = response.data.data;
+          localStorage.setItem("userWanikaniLevelData", JSON.stringify(responseData));
+          setUserWanikaniLevel(responseData)
+          setDataReady(true)
+        } else {
+          return
+        }
+      } catch (error) {
+        console.log(error)
+      }
+
+
+    }
+  }
+
+
   return (
     <div className="App">
       {dataReady ? (
-        <Dashboard userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
+        <>
+          <button onClick={refreshWKLevelData}>Wanikani Refresh</button>
+
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+          />
+
+
+          <Dashboard userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
+        </>
       ) : (
 
         <div>
+
           <form onSubmit={handleWanikaniApiKeySubmit}>
             <label>Wanikani API Key:</label>
             <input
@@ -101,12 +144,14 @@ function App() {
             />
             <button type="submit">Submit</button>
           </form>
+
           <input
             type="file"
             accept=".csv"
             onChange={handleFileUpload}
             style={{ marginTop: '20px' }}
           />
+
         </div>
       )}
     </div>
