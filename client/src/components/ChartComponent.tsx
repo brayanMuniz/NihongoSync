@@ -11,7 +11,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
-import { getWaniKaniLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
+import { getJLPTLevelFromLN, getWaniKaniLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
 import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
 
 ChartJS.register(
@@ -154,25 +154,36 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
     }
 
   };
+
   return (
     <div className="flex">
+
       <div className="w-10/12 p-2">
         <Bar data={chartData} options={chartOptions} />
       </div>
+
       <div className="w-2/12 p-5">
         {hoveredData ? (
           <div>
             <h3>{hoveredData['Series Title']}</h3>
-            <h3>LN: {hoveredData['Series ID']}</h3>
-            <h3>seasonID: {hoveredData['TV Season ID']}</h3>
-
-            <h3>tmbd: {hoveredData['TMDB ID']}</h3>
-            <h3>season # {hoveredData['Series Order']}</h3>
+            <h3>Season #: {hoveredData['Series Order']}</h3>
+            <h3>~JLPT {getJLPTLevelFromLN(Number(hoveredData['Difficulty Level']))}</h3>
+            <h3>My Rating: {hoveredData['My Rating']}</h3>
+            <h3>Hours Watched {Math.floor(parseInt(hoveredData['Total Minutes Watched']) / 60)} </h3>
+            <h3>Episodes Watched: {hoveredData['Episodes Watched']}</h3>
+            <a
+              href={`https://learnnatively.com/season/${hoveredData['TV Season ID']}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Go to LearnNatively Season
+            </a>
           </div>
         ) : (
           <p>Hover over a bar to see details</p>
         )}
       </div>
+
     </div>
   );
 };
