@@ -10,6 +10,7 @@ import ChartComponent from './ChartComponent';
 // components 
 import DoughnutJLPTChart from './DoughnutJLPTChart';
 import WanikaniJLPTOverview from './WanikaniJLPTOverview';
+import HorizontalBarChart from './HorizontalBarChart';
 
 interface Props {
   initialUserWanikaniLevel: UserWanikaniLevel;
@@ -67,19 +68,28 @@ const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonDat
 
     <div className="flex min-h-screen">
 
-      <div className="w-8/12 p-4 h-full">
+      <div className="w-7/12 p-4 h-full">
         <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData}
         />
       </div>
 
-      <div className="w-4/12 p-4 flex flex-col space-y-4 h-full">
+      <div className="w-5/12 p-4 flex flex-col space-y-4 h-full">
+
         <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} totalHoursWatched={totalHoursWatched} refreshWKLevelData={refreshWKLevelData}
           handleFileUpload={handleFileUpload}
 
         />
-        <DoughnutJLPTChart
-          seasonData={seasonData}
-        />
+
+        <div className="flex">
+          <div className="w-1/3 p-2">
+            <DoughnutJLPTChart seasonData={seasonData} />
+          </div>
+          <div className="w-2/3 p-2">
+            <HorizontalBarChart seasonData={seasonData} />
+          </div>
+        </div>
+
+
       </div>
 
     </div>
