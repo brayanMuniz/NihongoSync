@@ -5,9 +5,11 @@ import LeveltoJLPTTable from './LeveltoJLPTTable';
 interface OverviewProps {
   totalHoursWatched: number
   userWanikaniLevel: UserWanikaniLevel;
+  refreshWKLevelData: () => void;
+  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel, totalHoursWatched }) => {
+const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel, totalHoursWatched, refreshWKLevelData, handleFileUpload }) => {
   const calculateJLPTLevel = () => {
     return calculateJLPTLevelHelper(userWanikaniLevel)
   };
@@ -32,11 +34,27 @@ const WanikaniJLPTOverview: React.FC<OverviewProps> = ({ userWanikaniLevel, tota
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold mb-4">Wanikani Level: {userWanikaniLevel.length}, Total Hours Watched: {totalHoursWatched} </h2>
+      <h2 className="text-2xl font-semibold mb-4">Wanikani Level: {userWanikaniLevel.length}, {totalHoursWatched} Hours Immersed</h2>
 
       <div className="text-lg flex space-x-4 items-center justify-center">
         <p>~JLPT Level: {calculateJLPTLevel()}</p>
         <p>Days on Current Level: {calculateDaysOnCurrentLevel()}</p>
+
+        <button
+          onClick={refreshWKLevelData}
+          className="bg-blue-500 text-white px-2 py-1 rounded"
+        >
+          WK
+        </button>
+        <label className="bg-gray-500 text-white px-2 py-1 rounded cursor-pointer">
+          LN
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </label>
       </div>
 
       <LeveltoJLPTTable userWanikaniLevel={userWanikaniLevel} />

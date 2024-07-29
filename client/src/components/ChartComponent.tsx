@@ -97,6 +97,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
 
   const chartOptions: ChartOptions<'bar'> = {
     responsive: true,
+    maintainAspectRatio: true,
     scales: {
 
       x: {
@@ -158,11 +159,11 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
   return (
     <div className="flex">
 
-      <div className="w-10/12 p-2">
+      <div className="w-9/12 p-2">
         <Bar data={chartData} options={chartOptions} />
       </div>
 
-      <div className="w-2/12 p-5">
+      <div className="w-3/12 p-5 pl-0 ml-0">
         {hoveredData ? (
           <div>
             <h3>{hoveredData['Series Title']}</h3>

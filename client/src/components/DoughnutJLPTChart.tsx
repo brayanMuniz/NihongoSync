@@ -77,6 +77,7 @@ const DoughnutJLPTChart: React.FC<ChartComponentProps> = ({ seasonData, classNam
     plugins: {
       legend: {
         position: 'top',
+        display: false
       },
       title: {
         display: false,

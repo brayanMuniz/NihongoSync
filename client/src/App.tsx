@@ -85,52 +85,10 @@ function App() {
     }
   }
 
-  const refreshWKLevelData = async () => {
-
-    const storedApiKey = localStorage.getItem("wanikaniApiKey");
-    if (storedApiKey) {
-
-      try {
-        let wanikaniLevelsUrl: string = "https://api.wanikani.com/v2/level_progressions"
-        const response = await axios.get(wanikaniLevelsUrl, {
-          headers: {
-            Authorization: `Bearer ${wanikaniApiKey}`
-          }
-        });
-
-        // If the response is successful, update data
-        if (response.status === 200) {
-          const responseData = response.data.data;
-          localStorage.setItem("userWanikaniLevelData", JSON.stringify(responseData));
-          setUserWanikaniLevel(responseData)
-          setDataReady(true)
-        } else {
-          return
-        }
-      } catch (error) {
-        console.log(error)
-      }
-
-
-    }
-  }
-
-
   return (
     <div className="App">
       {dataReady ? (
-        <>
-          <button onClick={refreshWKLevelData}>Wanikani Refresh</button>
-
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-          />
-
-
-          <Dashboard userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
-        </>
+        <Dashboard initialUserWanikaniLevel={userWanikaniLevel} initialSeasonData={seasonData} wanikaniApiKey={wanikaniApiKey} />
       ) : (
 
         <div>
