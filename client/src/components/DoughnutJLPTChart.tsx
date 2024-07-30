@@ -33,11 +33,11 @@ interface ChartComponentProps {
 
 const DoughnutJLPTChart: React.FC<ChartComponentProps> = ({ seasonData, className }) => {
   const jlptLevelCounters: { [key in JLPTLevels]: number } = {
-    N5: 0,
-    N4: 0,
-    N3: 0,
-    N2: 0,
     N1: 0,
+    N2: 0,
+    N3: 0,
+    N4: 0,
+    N5: 0,
   };
 
   // Classify each show to its JLPT level using its difficulty rating and increment the JLPT counter
