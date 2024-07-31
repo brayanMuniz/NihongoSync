@@ -23,6 +23,15 @@ type User struct {
 	ReviewStartTime            string    `json:"review_start_time" db:"review_start_time"` // Store as string to handle time type
 }
 
+type WanikaniReview struct {
+	ID           int       `json:"id" db:"id"`
+	UserID       int       `json:"user_id" db:"user_id"`
+	ReviewDate   time.Time `json:"review_date" db:"review_date"`
+	DueNow       int       `json:"due_now" db:"due_now"`
+	DueIn24Hours int       `json:"due_in_24_hours" db:"due_in_24_hours"`
+	ReviewTime   string    `json:"review_time" db:"review_time"`
+}
+
 func ConnectDB() (*sqlx.DB, error) {
 	connStr := "user=brayanmuniz dbname=nihongosync sslmode=disable"
 	db, err := sqlx.Open("postgres", connStr)
@@ -66,4 +75,51 @@ func SaveUser(db *sqlx.DB, user *User, encryptionKey string) error {
 	}
 
 	return nil
+}
+
+func GetWanikaniReviews(db *sqlx.DB, userID int, start_time, end_time time.Time) ([]WanikaniReview, error) {
+	query := `
+		SELECT id, user_id, review_date, due_now, due_in_24_hours, review_time
+		FROM wanikanireviews
+		WHERE user_id = $1 AND review_date BETWEEN $2 AND $3
+		ORDER BY review_date ASC`
+
+	log.Printf("Executing query: %s with user ID: %d, start time: %s, end time: %s\n", query, userID, start_time, end_time)
+	rows, err := db.Queryx(query, userID, start_time, end_time)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reviews []WanikaniReview
+	for rows.Next() {
+		var review WanikaniReview
+		if err := rows.StructScan(&review); err != nil {
+			return nil, err
+		}
+		reviews = append(reviews, review)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reviews, nil
+}
+
+func AuthenticateUser(db *sqlx.DB, usernameOrEmail, password string) (*User, error) {
+	var user User
+
+	// Retrieve the user by username or email
+	query := `SELECT * FROM users WHERE username = $1 OR email = $2`
+	if err := db.Get(&user, query, usernameOrEmail, usernameOrEmail); err != nil {
+		return nil, fmt.Errorf("error fetching user: %v", err)
+	}
+
+	// Compare the provided password with the stored hashed password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return nil, fmt.Errorf("invalid password: %v", err)
+	}
+
+	return &user, nil
 }
