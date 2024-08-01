@@ -13,6 +13,7 @@ import { Bar } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { getJLPTLevelFromLN, getWaniKaniLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
 import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
+import HoveredData from './Hover';
 
 ChartJS.register(
   CategoryScale,
@@ -158,31 +159,12 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
 
   return (
     <div className="flex">
-
       <div className="w-9/12 p-2">
         <Bar data={chartData} options={chartOptions} />
       </div>
 
       <div className="w-3/12 p-5 pl-0 ml-0">
-        {hoveredData ? (
-          <div>
-            <h3>{hoveredData['Series Title']}</h3>
-            <h3>Season #: {hoveredData['Series Order']}</h3>
-            <h3>~JLPT {getJLPTLevelFromLN(Number(hoveredData['Difficulty Level']))}</h3>
-            <h3>My Rating: {hoveredData['My Rating']}</h3>
-            <h3>Hours Watched {Math.floor(parseInt(hoveredData['Total Minutes Watched']) / 60)} </h3>
-            <h3>Episodes Watched: {hoveredData['Episodes Watched']}</h3>
-            <a
-              href={`https://learnnatively.com/season/${hoveredData['TV Season ID']}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Go to LearnNatively Season
-            </a>
-          </div>
-        ) : (
-          <p>Hover over a bar to see details</p>
-        )}
+        <HoveredData hoveredData={hoveredData} />
       </div>
 
     </div>

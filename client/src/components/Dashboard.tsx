@@ -87,7 +87,6 @@ const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonDat
           </div>
         </div>
 
-
       </div>
 
       <div className="w-5/12 p-4 flex flex-col space-y-4 h-full">
