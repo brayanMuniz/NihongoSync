@@ -4,6 +4,7 @@ import (
 	"github.com/brayanMuniz/NihongoSync/cronjobs"
 	"github.com/brayanMuniz/NihongoSync/db"
 	"github.com/brayanMuniz/NihongoSync/security"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -59,6 +60,15 @@ func main() {
 
 	// Routes
 	r := gin.Default()
+
+	// Enable CORS for all origins
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Adjust this to your client URL
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Serve the frontend
 	r.Use(static.Serve("/", static.LocalFile("../client/build", true)))

@@ -12,6 +12,7 @@ import DoughnutJLPTChart from './DoughnutJLPTChart';
 import WanikaniJLPTOverview from './WanikaniJLPTOverview';
 import HorizontalBarChart from './HorizontalBarChart';
 import TableWatched from './TableWatched';
+import WanikaniReviews from './WanikaniReviews';
 
 interface Props {
   initialUserWanikaniLevel: UserWanikaniLevel;
@@ -93,8 +94,10 @@ const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonDat
 
         <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} totalHoursWatched={totalHoursWatched} refreshWKLevelData={refreshWKLevelData}
           handleFileUpload={handleFileUpload}
-
         />
+
+        <WanikaniReviews wanikaniApiKey={wanikaniApiKey} />
+
 
       </div>
 
