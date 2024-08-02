@@ -38,7 +38,7 @@ const TableWatched: React.FC<JLPTTableProps> = ({ seasonData }) => {
   }));
 
   return (
-    <table className="min-w-full bg-white">
+    <table className="min-w-full">
       <thead>
         <tr>
           <th className="py-2">JLPT Level</th>

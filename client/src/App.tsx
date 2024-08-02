@@ -86,7 +86,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App bg-gray-800 text-white">
       {dataReady ? (
         <Dashboard initialUserWanikaniLevel={userWanikaniLevel} initialSeasonData={seasonData} wanikaniApiKey={wanikaniApiKey} />
       ) : (

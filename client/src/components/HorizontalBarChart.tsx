@@ -83,14 +83,33 @@ const HorizontalBarChart: React.FC<ChartComponentProps> = ({ seasonData }) => {
         display: false,
       },
     },
+
     scales: {
       x: {
+        title: {
+          color: '#fffff'
+        },
+
+        ticks: {
+          color: '#ffffff', // Y-axis labels color
+        },
+
         beginAtZero: true,
       },
       y: {
         beginAtZero: true,
+        title: {
+          color: '#fffff'
+        },
+
+        ticks: {
+          color: '#ffffff', // Y-axis labels color
+        },
+
+
       }
     },
+
   };
 
   return <Bar data={chartData} options={chartOptions} />

@@ -37,32 +37,31 @@ const LeveltoJLPTTable: React.FC<Props> = ({ userWanikaniLevel }) => {
   };
 
   return (
-
-    <div className="overflow-x-auto">
-
-      <div> Median Time on level: {medianTime} days </div>
-
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-
+    <div className="overflow-x-auto bg-gray-900 p-4 rounded-lg shadow-lg">
+      <div className="text-white text-lg font-semibold mb-4">
+        Median Time on level: {medianTime} days
+      </div>
+      <table className="min-w-full divide-y divide-gray-700">
+        <thead className="bg-gray-800">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">WaniKani</th>
+            <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">WaniKani</th>
             {['N3', 'N2', 'N1'].map(level => (
-              <th key={level} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{level}</th>
+              <th key={level} className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">{level}</th>
             ))}
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+            <th className="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">Time</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+
+        <tbody className="bg-gray-800 text-white divide-y divide-gray-700">
           {levelsToDisplay.map((level) => (
             <tr key={level}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{level}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{level}</td>
               {(['N3', 'N2', 'N1'] as JLPTLevels[]).map(jlpt => (
-                <td key={jlpt} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td key={jlpt} className="px-6 py-4 whitespace-nowrap text-sm">
                   {wanikaniJLPTData[jlpt][level - 1] !== null ? `${wanikaniJLPTData[jlpt][level - 1]}%` : '---'}
                 </td>
               ))}
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm">
                 {calculateEstimatedDate(level)}
               </td>
             </tr>
@@ -71,6 +70,7 @@ const LeveltoJLPTTable: React.FC<Props> = ({ userWanikaniLevel }) => {
       </table>
     </div>
   );
+
 
 }
 

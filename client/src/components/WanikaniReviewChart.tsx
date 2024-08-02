@@ -121,6 +121,13 @@ const WanikaniReviewChart: React.FC = () => {
         title: {
           display: true,
           text: 'Date',
+          color: '#ffffff', // X-axis title color
+        },
+        ticks: {
+          color: '#ffffff', // X-axis labels color
+        },
+        grid: {
+          color: '#444444', // X-axis grid line color
         },
       },
       y: {
@@ -128,6 +135,13 @@ const WanikaniReviewChart: React.FC = () => {
         title: {
           display: true,
           text: 'Reviews Done',
+          color: '#ffffff', // Y-axis title color
+        },
+        ticks: {
+          color: '#ffffff', // Y-axis labels color
+        },
+        grid: {
+          color: '#444444', // Y-axis grid line color
         },
       },
     },
@@ -135,13 +149,18 @@ const WanikaniReviewChart: React.FC = () => {
       legend: {
         display: false,
         position: 'top',
+        labels: {
+          color: '#ffffff', // Legend text color
+        },
       },
       title: {
         display: true,
         text: 'Wanikani Reviews Done Over Time',
+        color: '#ffffff', // Title color
       },
     },
   };
+
 
   return (
     <Line data={chartData} options={chartOptions} />

@@ -90,53 +90,61 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
     datasets: chartDataSets
   };
 
+
   const chartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: true,
     scales: {
-
       x: {
         type: 'category',
         grid: {
           display: true,
+          color: '#444', // Grid line color
         },
         stacked: true,
         title: {
           display: true,
           text: 'Wanikani Level',
+          color: '#ffffff', // X-axis title color
+        },
+        ticks: {
+          color: '#ffffff', // X-axis labels color
         },
       },
-
       y: {
         stacked: true,
         beginAtZero: true,
         grid: {
           display: true,
+          color: '#444', // Grid line color
         },
         title: {
           display: true,
           text: 'Hours Watched',
+          color: '#ffffff', // Y-axis title color
+        },
+        ticks: {
+          color: '#ffffff', // Y-axis labels color
         },
         min: 0,
-
       },
     },
-
     plugins: {
       legend: {
         display: false,
         position: 'top',
+        labels: {
+          color: '#ffffff', // Legend text color
+        },
       },
       title: {
         display: false,
+        color: '#ffffff', // Title color
       },
-
       tooltip: {
-        enabled: false
+        enabled: false,
       },
-
     },
-
     onHover: (_, chartElement) => {
       if (chartElement.length > 0) {
         const index = chartElement[0].datasetIndex;
@@ -147,8 +155,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
           setHoveredData(season);
         }
       }
-    }
-
+    },
   };
 
   return (
