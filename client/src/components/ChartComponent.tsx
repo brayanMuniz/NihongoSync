@@ -11,7 +11,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
-import { getJLPTLevelFromLN, getWaniKaniLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
+import { getWaniKaniLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
 import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
 import HoveredData from './Hover';
 
@@ -34,12 +34,6 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
   const [chartLabels, setChartLabels] = useState<number[]>([])
   const [chartDataSets, setChartDataSets] = useState<any[]>([])
   const [hoveredData, setHoveredData] = useState<LNTvSeasonData | null>(null);
-
-  useEffect(() => {
-    if (hoveredData) {
-      console.log(hoveredData)
-    }
-  }, [hoveredData]);
 
   useEffect(() => {
     let hoursWatched = seasonData.map((season) => ({

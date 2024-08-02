@@ -13,6 +13,7 @@ import WanikaniJLPTOverview from './WanikaniJLPTOverview';
 import HorizontalBarChart from './HorizontalBarChart';
 import TableWatched from './TableWatched';
 import WanikaniReviews from './WanikaniReviews';
+import Footer from './Footer';
 
 interface Props {
   initialUserWanikaniLevel: UserWanikaniLevel;
@@ -67,42 +68,38 @@ const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonDat
   };
 
   return (
+    <div className="flex flex-col min-h-screen">
 
-    <div className="flex min-h-screen">
+      <div className="flex flex-grow">
+        <div className="w-7/12 p-4 h-full flex flex-col">
+          <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
 
-      <div className="w-7/12 p-4 h-full flex flex-col">
-        <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData}
-
-        />
-
-        <div className="flex">
-          <div className="w-1/5 p-2">
-            <DoughnutJLPTChart seasonData={seasonData} />
-          </div>
-          <div className="w-2/5 p-2">
-            <HorizontalBarChart seasonData={seasonData} />
-          </div>
-          <div className='w-2/5 p-2'>
-            <TableWatched seasonData={seasonData} />
+          <div className="flex">
+            <div className="w-1/5 p-2">
+              <DoughnutJLPTChart seasonData={seasonData} />
+            </div>
+            <div className="w-2/5 p-2">
+              <HorizontalBarChart seasonData={seasonData} />
+            </div>
+            <div className="w-2/5 p-2">
+              <TableWatched seasonData={seasonData} />
+            </div>
           </div>
         </div>
 
+        <div className="w-5/12 p-4 flex flex-col space-y-4 h-full">
+          <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} totalHoursWatched={totalHoursWatched} refreshWKLevelData={refreshWKLevelData}
+            handleFileUpload={handleFileUpload}
+          />
+          <WanikaniReviews wanikaniApiKey={wanikaniApiKey} />
+        </div>
       </div>
 
-      <div className="w-5/12 p-4 flex flex-col space-y-4 h-full">
-
-        <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} totalHoursWatched={totalHoursWatched} refreshWKLevelData={refreshWKLevelData}
-          handleFileUpload={handleFileUpload}
-        />
-
-        <WanikaniReviews wanikaniApiKey={wanikaniApiKey} />
-
-
-      </div>
+      <Footer />
 
     </div>
-
   );
+
 }
 
 export default Dashboard;
