@@ -64,3 +64,50 @@ export const calculateJLPTLevelHelper = (levelData: UserWanikaniLevel): JLPTLeve
   return closestLevel
 };
 
+export function estimateWanikaniWatchLevel(currentLevel: number, hoursImmersed: number) {
+  const levelThresholds = [
+    { level: 1, minHours: 0 },
+    { level: 2, minHours: 5 },
+    { level: 3, minHours: 10 },
+    { level: 4, minHours: 20 },
+    { level: 5, minHours: 35 },
+    { level: 10, minHours: 70 },
+    { level: 15, minHours: 120 },
+    { level: 20, minHours: 200 },
+    { level: 25, minHours: 300 },
+    { level: 30, minHours: 450 },
+    { level: 35, minHours: 600 },
+    { level: 40, minHours: 800 },
+    { level: 45, minHours: 1000 },
+    { level: 50, minHours: 1250 },
+    { level: 55, minHours: 1500 },
+    { level: 60, minHours: 2000 }
+  ];
+
+  let closestLevel = currentLevel;
+  let minHoursForClosestLevel = 0;
+
+  // Find the closest level below the current level
+  for (let i = levelThresholds.length - 1; i >= 0; i--) {
+    if (levelThresholds[i].level < currentLevel) {
+      closestLevel = levelThresholds[i].level;
+      minHoursForClosestLevel = levelThresholds[i].minHours;
+      break;
+    }
+  }
+
+  // Calculate the new total hours based on the closest level's min hours
+  const totalHours = minHoursForClosestLevel + hoursImmersed;
+  let estimatedLevel = closestLevel;
+
+  // Find the estimated level based on the new total hours
+  for (let i = 0; i < levelThresholds.length; i++) {
+    if (totalHours >= levelThresholds[i].minHours) {
+      estimatedLevel = levelThresholds[i].level;
+    } else {
+      break;
+    }
+  }
+
+  return estimatedLevel;
+}

@@ -4,9 +4,10 @@ import { wanikaniJLPTData, JLPTLevels } from '../types/WanikaniJLPT';
 
 interface Props {
   userWanikaniLevel: UserWanikaniLevel;
+  daysOnLevel: number
 }
 
-const LeveltoJLPTTable: React.FC<Props> = ({ userWanikaniLevel }) => {
+const LeveltoJLPTTable: React.FC<Props> = ({ userWanikaniLevel, daysOnLevel }) => {
   const currentLevel = userWanikaniLevel.length;
 
   const startLevel = currentLevel;
@@ -32,14 +33,14 @@ const LeveltoJLPTTable: React.FC<Props> = ({ userWanikaniLevel }) => {
   const calculateEstimatedDate = (level: number) => {
     const daysNeeded = medianTime * (level - currentLevel);
     const estimatedDate = new Date();
-    estimatedDate.setDate(estimatedDate.getDate() + daysNeeded);
+    estimatedDate.setDate(estimatedDate.getDate() + daysNeeded - daysOnLevel);
     return estimatedDate.toDateString();
   };
 
   return (
     <div className="overflow-x-auto bg-gray-900 p-4 rounded-lg shadow-lg">
       <div className="text-white text-lg font-semibold mb-4">
-        Median Time on level: {medianTime} days
+        Median Time For Level Up: {medianTime} Days
       </div>
       <table className="min-w-full divide-y divide-gray-700">
         <thead className="bg-gray-800">

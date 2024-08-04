@@ -72,7 +72,24 @@ const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonDat
 
       <div className="flex flex-grow">
         <div className="w-7/12 p-4 h-full flex flex-col">
-          <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} />
+
+          <div className="flex items-center mx-auto">
+            <h2 className="text-2xl font-semibold mr-4">{totalHoursWatched} Hours Immersed</h2>
+
+            <label className="bg-gray-500 text-white px-2 py-1 rounded cursor-pointer">
+              LN
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          <div className='flex flex-col'>
+            <ChartComponent userWanikaniLevel={userWanikaniLevel} seasonData={seasonData} totalHoursWatched={totalHoursWatched} />
+          </div>
 
           <div className="flex">
             <div className="w-1/5 p-2">

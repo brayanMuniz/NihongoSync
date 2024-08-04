@@ -12,7 +12,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import { getWaniKaniLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
-import { UserWanikaniLevel } from '../types/UserWanikaniLevel';
+import { UserWanikaniLevel, estimateWanikaniWatchLevel } from '../types/UserWanikaniLevel';
 import HoveredData from './Hover';
 
 ChartJS.register(
@@ -28,9 +28,10 @@ ChartJS.register(
 interface ChartComponentProps {
   userWanikaniLevel: UserWanikaniLevel;
   seasonData: LNTvSeasonData[];
+  totalHoursWatched: number
 }
 
-const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seasonData }) => {
+const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seasonData, totalHoursWatched }) => {
   const [chartLabels, setChartLabels] = useState<number[]>([])
   const [chartDataSets, setChartDataSets] = useState<any[]>([])
   const [hoveredData, setHoveredData] = useState<LNTvSeasonData | null>(null);
@@ -90,10 +91,10 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
     datasets: chartDataSets
   };
 
-
   const chartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: true,
+
     scales: {
       x: {
         type: 'category',
@@ -129,6 +130,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
         min: 0,
       },
     },
+
     plugins: {
       legend: {
         display: false,
@@ -159,9 +161,13 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
   };
 
   return (
-    <div className="flex">
+    <div className="flex mb-0">
       <div className="w-9/12 p-2">
         <Bar data={chartData} options={chartOptions} />
+        <div>
+          Estimated wanikani level with watch time: {estimateWanikaniWatchLevel(userWanikaniLevel.length, totalHoursWatched)}
+        </div>
+
       </div>
 
       <div className="w-3/12 p-5 pl-0 ml-0">
