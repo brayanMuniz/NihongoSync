@@ -1,10 +1,12 @@
-import { FormEvent, useEffect, useState } from 'react';
-import Papa from 'papaparse';
 import axios from 'axios';
-import './App.css';
+import { FormEvent, useEffect, useState } from 'react';
+
 import { createDefaultWanikaniLevel, UserWanikaniLevel } from './types/UserWanikaniLevel';
 import { LNTvSeasonData } from './types/learnNativelyLevel';
+
 import Dashboard from './components/Dashboard';
+
+import './App.css';
 
 function App() {
   const [dataReady, setDataReady] = useState(false)
@@ -12,39 +14,25 @@ function App() {
   const [userWanikaniLevel, setUserWanikaniLevel] = useState<UserWanikaniLevel>(createDefaultWanikaniLevel());
   const [seasonData, setSeasonData] = useState<LNTvSeasonData[]>([])
 
+  // Intial load with localstorage
   useEffect(() => {
-    // Check if the API key is already stored in localStorage
     const storedApiKey = localStorage.getItem("wanikaniApiKey");
     const storedUserWanikaniLevelData = localStorage.getItem("userWanikaniLevelData");
     const storedSeasonData = localStorage.getItem("seasonData")
 
+    if (storedSeasonData != null) {
+      setSeasonData(JSON.parse(storedSeasonData))
+    }
+
     if (storedApiKey && storedUserWanikaniLevelData != null) {
       setWanikaniApiKey(storedApiKey);
       setUserWanikaniLevel(JSON.parse(storedUserWanikaniLevelData));
-    }
-
-    if (storedSeasonData != null) {
-      console.log(seasonData)
-      setSeasonData(JSON.parse(storedSeasonData))
+      setDataReady(true)
     }
   }, []);
 
-  // NOTE: We need this second useEffect because state updates (setWanikaniApiKey and setUserWanikaniLevel) 
-  // do not immediately reflect within the same render cycle
-  useEffect(() => {
-    if (wanikaniApiKey && userWanikaniLevel && seasonData) {
-      setDataReady(true);
-    }
-  }, [wanikaniApiKey, userWanikaniLevel, seasonData]);
-
   const handleWanikaniApiKeySubmit = async (event: FormEvent) => {
     event.preventDefault()
-
-    // Check if the API key is already stored in localStorage
-    const storedApiKey = localStorage.getItem("wanikaniApiKey");
-    if (storedApiKey) {
-      return;
-    }
 
     // If its not stored, make the api call to level and store api key and level data
     try {
@@ -72,44 +60,24 @@ function App() {
 
   }
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      Papa.parse<LNTvSeasonData>(file, {
-        complete: (results) => {
-          setSeasonData(results.data);
-          localStorage.setItem("seasonData", JSON.stringify(results.data))
-        },
-        header: true
-      });
-    }
-  }
-
   return (
-    <div className="App bg-gray-800 text-white">
+    <div className="flex items-center justify-center min-h-screen bg-gray-800 text-white">
       {dataReady ? (
         <Dashboard initialUserWanikaniLevel={userWanikaniLevel} initialSeasonData={seasonData} wanikaniApiKey={wanikaniApiKey} />
       ) : (
-
-        <div>
-
-          <form onSubmit={handleWanikaniApiKeySubmit}>
-            <label>Wanikani API Key:</label>
+        <div className="flex flex-col items-center gap-4">
+          <form onSubmit={handleWanikaniApiKeySubmit} className="flex flex-col items-center gap-4">
+            <label className="text-lg">Wanikani API Key:</label>
             <input
               type="text"
               value={wanikaniApiKey}
               onChange={(e) => setWanikaniApiKey(e.target.value)}
+              className="p-2 text-black rounded w-96"
             />
-            <button type="submit">Submit</button>
+            <button type="submit" className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-700">
+              Submit
+            </button>
           </form>
-
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            style={{ marginTop: '20px' }}
-          />
-
         </div>
       )}
     </div>
