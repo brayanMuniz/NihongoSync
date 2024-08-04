@@ -1,7 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { FiHelpCircle } from 'react-icons/fi'; // Importing an icon from react-icons
+import { Tooltip } from 'react-tooltip'
 
 import WanikaniReviewChart from './WanikaniReviewChart';
+import 'react-tooltip/dist/react-tooltip.css'
+
 
 interface Props {
   wanikaniApiKey: string
@@ -49,25 +53,31 @@ const WanikaniReviews: React.FC<Props> = ({ }) => {
   return (
     <div className="">
       {isAuthenticated ? (
-
         <WanikaniReviewChart />
-
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full">
-          <h2 className="text-2xl mb-4">{isSignIn ? 'Sign In' : 'Sign Up'}</h2>
+          <h2 className="text-2xl mb-4">
+            {isSignIn ? 'Sign In' : 'Sign Up'}
+            <FiHelpCircle
+              data-tooltip-id="help-tooltip"
+              data-tooltip-content="This is not your Wanikani account, this is a separate account that will use your Wanikani API key to store how many reviews you've done"
+              className="inline-block text-gray-500 ml-2 cursor-pointer"
+            />
+            <Tooltip id="help-tooltip" />
+          </h2>
           <input
             type="text"
-            placeholder="Username"
+            placeholder="Username or Email"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="mb-2 p-2 border rounded"
+            className="mb-2 p-2 border rounded text-black"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mb-4 p-2 border rounded"
+            className="mb-4 p-2 border rounded text-black"
           />
           {isSignIn ? (
             <button onClick={handleSignIn} className="px-4 py-2 bg-green-500 text-white rounded">
@@ -99,6 +109,7 @@ const WanikaniReviews: React.FC<Props> = ({ }) => {
       )}
     </div>
   );
+
 };
 
 export default WanikaniReviews;
