@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"os"
 	"time"
 )
 
@@ -33,14 +34,38 @@ type WanikaniReview struct {
 }
 
 func ConnectDB() (*sqlx.DB, error) {
-	connStr := "user=brayanmuniz dbname=nihongosync sslmode=disable"
+	// Retrieve the environment variables
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+	host := os.Getenv("POSTGRES_HOST")
+	port := os.Getenv("POSTGRES_PORT")
+
+	log.Println("DB Connection Details:", user, password, dbname, host, port)
+
+	// If POSTGRES_HOST or POSTGRES_PORT are not set, use default values
+	if host == "" {
+		host = "localhost" // or "db" if using Docker Compose
+	}
+	if port == "" {
+		port = "5432"
+	}
+
+	// Construct the connection string using environment variables
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	// Open the database connection
 	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %v", err)
 	}
+
+	// Test the connection
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("error connecting to the database: %v", err)
 	}
+
 	return db, nil
 }
 

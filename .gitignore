@@ -1,3 +1,5 @@
 secrets.json
 .DS_Store
 ./server/tmp/
+.env
+structure_only_dump.sql

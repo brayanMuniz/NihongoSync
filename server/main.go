@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/brayanMuniz/NihongoSync/cronjobs"
 	"github.com/brayanMuniz/NihongoSync/db"
-	"github.com/brayanMuniz/NihongoSync/security"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -22,19 +22,6 @@ type Claims struct {
 
 var jwtKey []byte
 
-// getEncryptionKey loads the encryption key from the secrets file.
-func getEncryptionKey() (string, error) {
-	basePath, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	secrets, err := security.LoadSecrets(basePath, "./secrets.json")
-	if err != nil {
-		return "", err
-	}
-	return secrets.EncryptionKey, nil
-}
-
 func main() {
 
 	// Connect to database
@@ -44,13 +31,17 @@ func main() {
 		log.Println("Error connecting to the database:", err)
 		return
 	}
+
 	defer dbCon.Close()
 	log.Println("Successfully connected to the database")
 
-	// Get the encryption key
-	encryptionKey, err := getEncryptionKey()
-	if err != nil {
-		log.Fatalf("Failed to get encryption key: %v", err)
+	// Load .env file
+	godotenv.Load()
+
+	// Access the passphrase
+	encryptionKey := os.Getenv("PASSPHRASE")
+	if encryptionKey == "" {
+		log.Fatalf("PASSPHRASE not set in .env file")
 	}
 
 	// Initialize cron jobs
@@ -61,25 +52,22 @@ func main() {
 	// Routes
 	r := gin.Default()
 
+	// TODO: Configure
 	// Enable CORS for all origins
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Adjust this to your client URL
+		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
 
+	// NOTE: THIS IS SET UP FOR DOCKER
+	// For local production use: ../client/build
 	// Serve the frontend
-	r.Use(static.Serve("/", static.LocalFile("../client/build", true)))
+	r.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 
 	r.POST("/createuser", func(ctx *gin.Context) {
-		// Get the encryption key
-		encryptionKey, err := getEncryptionKey()
-		if err != nil {
-			log.Fatalf("Failed to get encryption key: %v", err)
-		}
-
 		var user db.User
 
 		// Bind json to data
@@ -117,12 +105,6 @@ func main() {
 			log.Println("Failed to authenticate user: ", err)
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username/email or password"})
 			return
-		}
-
-		// Return a signed JWT
-		encryptionKey, err := getEncryptionKey()
-		if err != nil {
-			log.Fatalf("Failed to get encryption key: %v", err)
 		}
 
 		expirationTime := time.Now().Add(time.Hour * 24 * 30) // Token expiration time is 30 days
@@ -176,14 +158,12 @@ func main() {
 				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature"})
 				return
 			}
-			log.Println("here 1")
 
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
 			return
 		}
 
 		if !token.Valid {
-			log.Println("here 2")
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 			return
 		}
@@ -235,6 +215,5 @@ func main() {
 
 	})
 
-	// Start the server on port 8080
-	r.Run(":8080")
+	r.Run(":3000")
 }
