@@ -49,6 +49,7 @@ const WanikaniReviewChart: React.FC = () => {
     const fetchReviews = async () => {
       try {
         const token = localStorage.getItem('authToken');
+        console.log("Token", token);
 
         const date = new Date();
         date.setMonth(date.getMonth() - 1); // One month before today
@@ -56,15 +57,23 @@ const WanikaniReviewChart: React.FC = () => {
         const monthBefore = date.toISOString().split('T')[0];
         const endDate = new Date().toISOString().split('T')[0]; // Today's date
 
-        const response = await axios.get('http://localhost:8080/userWanikaniReviews', {
+        const response = await axios.get('/userWanikaniReviews', {
           headers: { Authorization: `Bearer ${token}` },
           params: { start_date: monthBefore, end_date: endDate }
         });
 
-        setReviewsData(calculateReviewsDone(response.data.data));
+        if (response.status == 200) {
+          console.log(response)
+          if (response.data.data === null) {
+            setReviewsData([])
+          } else {
+            setReviewsData(calculateReviewsDone(response.data.data));
+          }
+        }
+
       } catch (error) {
         setError('Error fetching reviews data');
-        console.error(error); // Log the error for debugging
+        console.error(error);
       } finally {
         setLoading(false);
       }

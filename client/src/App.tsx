@@ -11,6 +11,8 @@ import './App.css';
 function App() {
   const [dataReady, setDataReady] = useState(false)
   const [wanikaniApiKey, setWanikaniApiKey] = useState("")
+  const [userWanikaniId, setUserWanikaniId] = useState("")
+  const [userWanikaniUserName, setUserWanikaniUserName] = useState("")
   const [userWanikaniLevel, setUserWanikaniLevel] = useState<UserWanikaniLevel>(createDefaultWanikaniLevel());
   const [seasonData, setSeasonData] = useState<LNTvSeasonData[]>([])
 
@@ -19,9 +21,15 @@ function App() {
     const storedApiKey = localStorage.getItem("wanikaniApiKey");
     const storedUserWanikaniLevelData = localStorage.getItem("userWanikaniLevelData");
     const storedSeasonData = localStorage.getItem("seasonData")
+    const storedWanikaniInformation = localStorage.getItem("userWanikaniInformation")
 
     if (storedSeasonData != null) {
       setSeasonData(JSON.parse(storedSeasonData))
+    }
+
+    if (storedWanikaniInformation != null) {
+      setUserWanikaniId(JSON.parse(storedWanikaniInformation).id)
+      setUserWanikaniUserName(JSON.parse(storedWanikaniInformation).username)
     }
 
     if (storedApiKey && storedUserWanikaniLevelData != null) {
@@ -34,8 +42,9 @@ function App() {
   const handleWanikaniApiKeySubmit = async (event: FormEvent) => {
     event.preventDefault()
 
-    // If its not stored, make the api call to level and store api key and level data
+    // Get wanikani level
     try {
+
       let wanikaniLevelsUrl: string = "https://api.wanikani.com/v2/level_progressions"
       const response = await axios.get(wanikaniLevelsUrl, {
         headers: {
@@ -54,16 +63,40 @@ function App() {
       } else {
         return
       }
+
     } catch (error) {
       console.log(error)
     }
 
+    // Get userWanikaniName
+    try {
+
+      let wanikaniLevelsUrl: string = "https://api.wanikani.com/v2/user"
+      const response = await axios.get(wanikaniLevelsUrl, {
+        headers: {
+          Authorization: `Bearer ${wanikaniApiKey}`
+        }
+      });
+
+      if (response.status === 200) {
+        const responseData = response.data.data;
+        console.log(responseData);
+        localStorage.setItem("userWanikaniInformation", JSON.stringify(responseData));
+        setUserWanikaniUserName(responseData.username)
+        setUserWanikaniId(responseData.id)
+      } else {
+        return
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-800 text-white">
       {dataReady ? (
-        <Dashboard initialUserWanikaniLevel={userWanikaniLevel} initialSeasonData={seasonData} wanikaniApiKey={wanikaniApiKey} />
+        <Dashboard initialUserWanikaniLevel={userWanikaniLevel} initialSeasonData={seasonData} wanikaniApiKey={wanikaniApiKey} wanikaniUserID={userWanikaniId} wanikaniUserName={userWanikaniUserName} />
       ) : (
         <div className="flex flex-col items-center gap-4">
           <form onSubmit={handleWanikaniApiKeySubmit} className="flex flex-col items-center gap-4">

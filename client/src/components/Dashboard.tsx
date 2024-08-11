@@ -19,9 +19,11 @@ interface Props {
   initialUserWanikaniLevel: UserWanikaniLevel;
   initialSeasonData: LNTvSeasonData[]
   wanikaniApiKey: string
+  wanikaniUserName: string
+  wanikaniUserID: string
 }
 
-const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonData, wanikaniApiKey }) => {
+const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonData, wanikaniApiKey, wanikaniUserName, wanikaniUserID }) => {
   const [userWanikaniLevel, setUserWanikaniLevel] = useState<UserWanikaniLevel>(initialUserWanikaniLevel);
   const [seasonData, setSeasonData] = useState<LNTvSeasonData[]>(initialSeasonData)
 
@@ -108,7 +110,7 @@ const Dashboard: React.FC<Props> = ({ initialUserWanikaniLevel, initialSeasonDat
           <WanikaniJLPTOverview userWanikaniLevel={userWanikaniLevel} totalHoursWatched={totalHoursWatched} refreshWKLevelData={refreshWKLevelData}
             handleFileUpload={handleFileUpload}
           />
-          <WanikaniReviews wanikaniApiKey={wanikaniApiKey} />
+          <WanikaniReviews wanikaniApiKey={wanikaniApiKey} wanikaniUserName={wanikaniUserName} wanikaniID={wanikaniUserID} />
         </div>
       </div>
 

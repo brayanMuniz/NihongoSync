@@ -13,15 +13,15 @@ import (
 
 // User represents a user in the database.
 type User struct {
-	ID                         int       `json:"id" db:"id"`
-	Username                   string    `json:"username" db:"username" binding:"required"`
-	Email                      string    `json:"email" db:"email" binding:"required"`
-	Password                   string    `json:"password" db:"password" binding:"required"`
-	WanikaniApiKey             string    `json:"wanikani_api_key" db:"wanikani_api_key"`
-	WanikaniSubscriptionActive bool      `json:"wanikani_subscription_active" db:"wanikani_subscription_active"`
-	CreatedAt                  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                  time.Time `json:"updated_at" db:"updated_at"`
-	ReviewStartTime            string    `json:"review_start_time" db:"review_start_time"` // Store as string to handle time type
+	ID              int       `json:"id" db:"id"`
+	Username        string    `json:"username" db:"username" binding:"required"`
+	Email           string    `json:"email" db:"email"`
+	Password        string    `json:"password" db:"password" binding:"required"`
+	WanikaniApiKey  string    `json:"wanikani_api_key" db:"wanikani_api_key" binding:"required"`
+	WanikaniID      string    `json:"wanikani_id" db:"wanikani_id" binding:"required"`
+	CreatedAt       time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
+	ReviewStartTime string    `json:"review_start_time" db:"review_start_time" binding:"required"`
 }
 
 type WanikaniReview struct {
@@ -86,14 +86,13 @@ func SaveUser(db *sqlx.DB, user *User, encryptionKey string) error {
 	user.Password = string(hashedPassword)
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	user.WanikaniSubscriptionActive = false // Default value
 
 	// Execute the query into the database
 	query := `INSERT INTO users (username, email, password, wanikani_api_key, 
-	wanikani_subscription_active, created_at, updated_at, review_start_time)
-	          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	created_at, updated_at, review_start_time)
+	          VALUES ($1, $2, $3, $4, $5, $6, $7)`
 	_, err = db.Exec(query, user.Username, user.Email, user.Password, encryptedApiKey,
-		user.WanikaniSubscriptionActive, user.CreatedAt, user.UpdatedAt, user.ReviewStartTime)
+		user.CreatedAt, user.UpdatedAt, user.ReviewStartTime)
 
 	if err != nil {
 		return fmt.Errorf("error saving user to the database: %v", err)

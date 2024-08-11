@@ -83,7 +83,32 @@ func main() {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+		// Generate a JWT token for the newly created user
+		expirationTime := time.Now().Add(time.Hour * 24 * 30) // Token expiration time is 30 days
+		claims := &Claims{
+			Username: user.Username,
+			UserID:   user.ID,
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(expirationTime),
+			},
+		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+		// Sign the token with the encryption key
+		tokenString, err := token.SignedString([]byte(encryptionKey))
+		if err != nil {
+			log.Println("Failed to sign token: ", err)
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+			return
+		}
+
+		// Return the signed JWT along with the success message
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "User created successfully",
+			"token":   tokenString,
+		})
+
 	})
 
 	r.POST("/login", func(ctx *gin.Context) {

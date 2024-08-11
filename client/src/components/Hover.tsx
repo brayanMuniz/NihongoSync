@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { getJLPTLevelFromLN, LNTvSeasonData } from '../types/learnNativelyLevel';
-import tmdbKeys from '../clientSecrets.json';
 import axios from 'axios';
 
 interface TvShowData {
@@ -43,7 +42,9 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData }) => {
       // Title is not in Local Storage, fetch from TMDB API
       const BASE_URL = 'https://api.themoviedb.org/3';
       const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
-      const BEARER_TOKEN = tmdbKeys.tmdbReadApiKey
+      // WARNING: returns undefined
+      const BEARER_TOKEN = process.env.TMDB_READ_API_KEY
+      console.log(BEARER_TOKEN)
 
       const url = `${BASE_URL}/search/tv?query=${encodeURIComponent(title)}&include_adult=false&language=js&page=1`;
       const options = {
