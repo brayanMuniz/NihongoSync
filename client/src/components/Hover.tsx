@@ -22,9 +22,10 @@ interface TvShowData {
 
 interface HoveredDataProps {
   hoveredData: LNTvSeasonData | null;
+  tmdbReadApiKey: string;
 }
 
-const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData }) => {
+const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }) => {
   const [tvImageUrl, setTvImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,9 +43,7 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData }) => {
       // Title is not in Local Storage, fetch from TMDB API
       const BASE_URL = 'https://api.themoviedb.org/3';
       const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
-      // WARNING: returns undefined
-      const BEARER_TOKEN = process.env.TMDB_READ_API_KEY
-      console.log(BEARER_TOKEN)
+      const BEARER_TOKEN = tmdbReadApiKey
 
       const url = `${BASE_URL}/search/tv?query=${encodeURIComponent(title)}&include_adult=false&language=js&page=1`;
       const options = {
@@ -57,6 +56,14 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData }) => {
 
       try {
         const response = await axios.get(url, options);
+        const storedtmdbReadApiKey = localStorage.getItem("tmdbReadApiKey");
+
+        if (storedtmdbReadApiKey == null || storedtmdbReadApiKey == "" || storedtmdbReadApiKey == undefined) {
+          console.log("saving in localStorage:", tmdbReadApiKey);
+
+          localStorage.setItem("tmdbReadApiKey", tmdbReadApiKey);
+        }
+
         const data = response.data;
         if (data.results.length > 0) {
           const tvShow: TvShowData = {
@@ -78,7 +85,9 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData }) => {
     };
 
     if (hoveredData) {
-      fetchTvImage(hoveredData['Series Title']);
+      console.log(tmdbReadApiKey);
+      if (tmdbReadApiKey != "")
+        fetchTvImage(hoveredData['Series Title']);
     }
   }, [hoveredData]);
 

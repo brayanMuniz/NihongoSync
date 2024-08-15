@@ -35,6 +35,16 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
   const [chartLabels, setChartLabels] = useState<number[]>([])
   const [chartDataSets, setChartDataSets] = useState<any[]>([])
   const [hoveredData, setHoveredData] = useState<LNTvSeasonData | null>(null);
+  const [tmdbReadApiKey, setTmdbReadApiKey] = useState<string>("")
+
+  useEffect(() => {
+    const storedtmdbReadApiKey = localStorage.getItem("tmdbReadApiKey");
+    console.log(storedtmdbReadApiKey)
+    if (storedtmdbReadApiKey) {
+      setTmdbReadApiKey(storedtmdbReadApiKey)
+    }
+  }, [])
+
 
   useEffect(() => {
     let hoursWatched = seasonData.map((season) => ({
@@ -163,15 +173,24 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
   return (
     <div className="flex mb-0">
       <div className="w-9/12 p-2">
-        <Bar data={chartData} options={chartOptions} />
         <div>
           Estimated wanikani level with watch time: {estimateWanikaniWatchLevel(userWanikaniLevel.length, totalHoursWatched)}
         </div>
 
+        <label className="text-lg">TMDP Read API Key:</label>
+        <input
+          type="text"
+          value={tmdbReadApiKey}
+          onChange={(e) => setTmdbReadApiKey(e.target.value)}
+          className="p-2 text-black rounded w-96"
+        />
+
+
+        <Bar data={chartData} options={chartOptions} />
       </div>
 
       <div className="w-3/12 p-5 pl-0 ml-0">
-        <HoveredData hoveredData={hoveredData} />
+        <HoveredData hoveredData={hoveredData} tmdbReadApiKey={tmdbReadApiKey} />
       </div>
 
     </div>
