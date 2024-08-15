@@ -22,6 +22,63 @@ type Claims struct {
 
 var jwtKey []byte
 
+func JWTAuthMiddleware(jwtKey []byte) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// Read the JWT from the Authorization header
+		authHeader := ctx.GetHeader("Authorization")
+		if authHeader == "" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+			ctx.Abort()
+			return
+		}
+
+		const bearerPrefix = "Bearer "
+		if len(authHeader) <= len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+			ctx.Abort()
+			return
+		}
+
+		tokenString := authHeader[len(bearerPrefix):]
+
+		// Parse and verify the JWT
+		claims := &Claims{}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature"})
+				ctx.Abort()
+				return
+			}
+
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
+			ctx.Abort()
+			return
+		}
+
+		if !token.Valid {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			ctx.Abort()
+			return
+		}
+
+		// Check if token is expired
+		expirationTime := time.Unix(claims.ExpiresAt.Unix(), 0)
+		if expirationTime.Sub(time.Now()) <= 0 {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
+			ctx.Abort()
+			return
+		}
+
+		// Set the claims in the context so that the handler can access it
+		ctx.Set("claims", claims)
+		ctx.Next()
+	}
+}
+
 func main() {
 
 	// Connect to database
@@ -155,51 +212,11 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": tokenString})
 	})
 
-	r.GET("/userWanikaniReviews", func(ctx *gin.Context) {
+	r.GET("/userWanikaniReviews", JWTAuthMiddleware(jwtKey), func(ctx *gin.Context) {
 
-		// Read the JWT from the Authorization header
-		authHeader := ctx.GetHeader("Authorization")
-		if authHeader == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
-			return
-		}
-
-		const bearerPrefix = "Bearer "
-		if len(authHeader) <= len(bearerPrefix) || authHeader[:len(bearerPrefix)] != bearerPrefix {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
-			return
-		}
-
-		tokenString := authHeader[len(bearerPrefix):]
-
-		// Parse and verify the JWT
-		claims := &Claims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
-
-		if err != nil {
-			if err == jwt.ErrSignatureInvalid {
-				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token signature"})
-				return
-			}
-
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Bad request"})
-			return
-		}
-
-		if !token.Valid {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-
-		// Check if token is expired
-		expirationTime := time.Unix(claims.ExpiresAt.Unix(), 0)
-
-		if expirationTime.Sub(time.Now()) <= 0 {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
-			return
-		}
+		// Retrieve the claims from the context
+		claims, _ := ctx.Get("claims")
+		userClaims := claims.(*Claims)
 
 		// Use provided data to return the range of reviews done
 		startDate := ctx.Query("start_date")
@@ -228,7 +245,7 @@ func main() {
 			return
 		}
 
-		user_id := claims.UserID
+		user_id := userClaims.UserID
 
 		reviews, err := db.GetWanikaniReviews(dbCon, user_id, start, end)
 		if err != nil {
@@ -237,7 +254,6 @@ func main() {
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{"data": reviews})
-
 	})
 
 	r.Run(":3000")
