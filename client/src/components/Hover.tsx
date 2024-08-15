@@ -30,9 +30,14 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
 
   useEffect(() => {
     const fetchTvImage = async (title: string) => {
-      // Check if the title already exists in localStorage
-      const existingTvShows: TvShowData[] = JSON.parse(localStorage.getItem('tvShows') || '[]');
+      let existingTvShows: TvShowData[] = []
+      const storedTvShows = localStorage.getItem('tvShows')
+      if (storedTvShows != null) {
+        existingTvShows = JSON.parse(localStorage.getItem('tvShows') || '[]');
+      }
       const existingTvShow = existingTvShows.find(tvShow => tvShow.searched_title === title);
+      console.log(existingTvShows);
+
 
       if (existingTvShow) {
         setTvImageUrl(`https://image.tmdb.org/t/p/w500${existingTvShow.poster_path}`);
@@ -84,9 +89,15 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
       }
     };
 
+    const isUsingDemo = localStorage.getItem("usingDemoData")
+    let useDemoData = false
+    if (isUsingDemo != null) {
+      useDemoData = true
+
+    }
+
     if (hoveredData) {
-      console.log(tmdbReadApiKey);
-      if (tmdbReadApiKey != "")
+      if (tmdbReadApiKey != "" || useDemoData)
         fetchTvImage(hoveredData['Series Title']);
     }
   }, [hoveredData]);

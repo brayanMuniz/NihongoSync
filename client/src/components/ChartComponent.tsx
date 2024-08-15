@@ -39,7 +39,6 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ userWanikaniLevel, seas
 
   useEffect(() => {
     const storedtmdbReadApiKey = localStorage.getItem("tmdbReadApiKey");
-    console.log(storedtmdbReadApiKey)
     if (storedtmdbReadApiKey) {
       setTmdbReadApiKey(storedtmdbReadApiKey)
     }

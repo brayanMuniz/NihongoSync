@@ -18,6 +18,12 @@ function App() {
 
   // Intial load with localstorage
   useEffect(() => {
+    const usedDemoData = localStorage.getItem("usingDemoData")
+    if (usedDemoData != null) {
+      localStorage.clear()
+      return
+    }
+
     const storedApiKey = localStorage.getItem("wanikaniApiKey");
     const storedUserWanikaniLevelData = localStorage.getItem("userWanikaniLevelData");
     const storedSeasonData = localStorage.getItem("seasonData")
@@ -93,25 +99,54 @@ function App() {
     }
   }
 
+  const handleDemo = async () => {
+    localStorage.setItem('usingDemoData', "true")
+
+    await axios.get("./seasonData.json").then((res) => {
+      setSeasonData(res.data)
+    })
+
+    await axios.get("./tvShows.json").then((res) => {
+      console.log(res.data);
+      console.log(JSON.stringify(res.data))
+      localStorage.setItem('tvShows', JSON.stringify(res.data));
+    })
+
+    await axios.get("./userWanikaniLevelData.json").then((res) => {
+      setUserWanikaniLevel(res.data)
+    })
+
+    setDataReady(true)
+
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-800 text-white">
       {dataReady ? (
         <Dashboard initialUserWanikaniLevel={userWanikaniLevel} initialSeasonData={seasonData} wanikaniApiKey={wanikaniApiKey} wanikaniUserID={userWanikaniId} wanikaniUserName={userWanikaniUserName} />
       ) : (
-        <div className="flex flex-col items-center gap-4">
-          <form onSubmit={handleWanikaniApiKeySubmit} className="flex flex-col items-center gap-4">
-            <label className="text-lg">Wanikani API Key:</label>
-            <input
-              type="text"
-              value={wanikaniApiKey}
-              onChange={(e) => setWanikaniApiKey(e.target.value)}
-              className="p-2 text-black rounded w-96"
-            />
-            <button type="submit" className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-700">
-              Submit
-            </button>
-          </form>
+
+        <div className="flex flex-col">
+          <button type="button" className="px-4 py-2 bg-sky-800 rounded mb-2 hover:bg-sky-900" onClick={handleDemo}>Show Demo</button>
+
+          <div className="flex flex-col items-center gap-4">
+            <form onSubmit={handleWanikaniApiKeySubmit} className="flex flex-col items-center gap-4">
+              <label className="text-lg">Wanikani API Key:</label>
+              <input
+                type="text"
+                value={wanikaniApiKey}
+                onChange={(e) => setWanikaniApiKey(e.target.value)}
+                className="p-2 text-black rounded w-96"
+              />
+              <button type="submit" className="px-4 py-2 bg-blue-500 rounded hover:bg-blue-700">
+                Submit
+              </button>
+            </form>
+          </div>
+
+
         </div>
+
       )}
     </div>
   );
