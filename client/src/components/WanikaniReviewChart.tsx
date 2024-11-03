@@ -62,7 +62,7 @@ const WanikaniReviewChart: React.FC = () => {
           params: { start_date: monthBefore, end_date: endDate }
         });
 
-        if (response.status == 200) {
+        if (response.status === 200) {
           console.log(response)
           if (response.data.data === null) {
             setReviewsData([])

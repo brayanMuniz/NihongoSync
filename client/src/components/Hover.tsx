@@ -38,7 +38,6 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
       const existingTvShow = existingTvShows.find(tvShow => tvShow.searched_title === title);
       console.log(existingTvShows);
 
-
       if (existingTvShow) {
         setTvImageUrl(`https://image.tmdb.org/t/p/w500${existingTvShow.poster_path}`);
         console.log('Found Image in localStorage:');
@@ -63,9 +62,8 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
         const response = await axios.get(url, options);
         const storedtmdbReadApiKey = localStorage.getItem("tmdbReadApiKey");
 
-        if (storedtmdbReadApiKey == null || storedtmdbReadApiKey == "" || storedtmdbReadApiKey == undefined) {
+        if (storedtmdbReadApiKey === null || storedtmdbReadApiKey === "" || storedtmdbReadApiKey === undefined) {
           console.log("saving in localStorage:", tmdbReadApiKey);
-
           localStorage.setItem("tmdbReadApiKey", tmdbReadApiKey);
         }
 
@@ -97,10 +95,10 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
     }
 
     if (hoveredData) {
-      if (tmdbReadApiKey != "" || useDemoData)
+      if (tmdbReadApiKey !== "" || useDemoData)
         fetchTvImage(hoveredData['Series Title']);
     }
-  }, [hoveredData]);
+  }, [hoveredData, tmdbReadApiKey]);
 
   if (!hoveredData) {
     return <p>Hover over a bar to see details</p>;
@@ -113,17 +111,21 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
           <img
             src={tvImageUrl}
             alt={hoveredData['Series Title']}
-            style={{ width: '200px', height: '300px', objectFit: 'cover' }}
+            className="object-contain"
+            style={{ width: '250px', height: '300px' }}
           />
         </div>
       )}
+
       <div className="text-center">
-        <h3 className="text-xl font-bold">{hoveredData['Series Title']}</h3>
+        <h3 className="text-xl font-bold line-clamp-3 min-h-[6rem] text-ellipsis overflow-hidden">
+          {hoveredData['Series Title']}
+        </h3>
         <p>Season #: {hoveredData['Series Order']}</p>
         <p>~JLPT {getJLPTLevelFromLN(Number(hoveredData['Difficulty Level']))}</p>
         <p>My Rating: {hoveredData['My Rating']}</p>
         <p>Hours Watched: {Math.floor(parseInt(hoveredData['Total Minutes Watched']) / 60)}</p>
-        <p>Episodes Watched: {hoveredData['Episodes Watched']}</p>
+        <p className="mx-1">Episodes Watched: {hoveredData['Episodes Watched']}</p>
         <a
           href={`https://learnnatively.com/season/${hoveredData['TV Season ID']}/`}
           target="_blank"
@@ -133,7 +135,9 @@ const HoveredData: React.FC<HoveredDataProps> = ({ hoveredData, tmdbReadApiKey }
           Go to LearnNatively Season
         </a>
       </div>
+
     </div>
+
   );
 
 };
